@@ -1,0 +1,24 @@
+{
+  "name": "matrice-ptf-senegal-cloudflare",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Plateforme MATRICE PARTENAIRE ET PTF SÉNÉGAL — Hono, Cloudflare Workers et D1",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "check": "node --check api/index.js && node --check public/assets/js/app.js",
+    "types": "wrangler types",
+    "db:create": "wrangler d1 create matrice-ptf-senegal",
+    "db:migrate:local": "wrangler d1 migrations apply matrice-ptf-senegal --local",
+    "db:migrate:remote": "wrangler d1 migrations apply matrice-ptf-senegal --remote",
+    "db:console:local": "wrangler d1 execute matrice-ptf-senegal --local --command \"SELECT name FROM sqlite_master WHERE type='table'\"",
+    "db:console:remote": "wrangler d1 execute matrice-ptf-senegal --remote --command \"SELECT name FROM sqlite_master WHERE type='table'\""
+  },
+  "dependencies": {
+    "hono": "^4.13.14"
+  },
+  "devDependencies": {
+    "wrangler": "^4.156.0"
+  }
+}

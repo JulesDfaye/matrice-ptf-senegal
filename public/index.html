@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MATRICE PARTENAIRE ET PTF SÉNÉGAL — V2</title>
+<script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+<body>
+<section id="authScreen" class="auth-screen" hidden aria-label="Connexion sécurisée">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="auth-logo" aria-hidden="true"><svg viewBox="0 0 90 60"><rect width="30" height="60" fill="#00853f"/><rect x="30" width="30" height="60" fill="#fdef42"/><rect x="60" width="30" height="60" fill="#e31b23"/><polygon points="45,16 48.5,27 60,27 50.7,33.8 54.2,45 45,38 35.8,45 39.3,33.8 30,27 41.5,27" fill="#00853f"/></svg></div>
+      <div><h1>MATRICE PARTENAIRE<br>ET PTF SÉNÉGAL</h1><p>Gestion • Suivi • Analyse • Données</p></div>
+    </div>
+    <h2>Connexion à la plateforme</h2>
+    <p class="intro">Identifiez-vous pour accéder à vos partenaires, activités, matrices et indicateurs. Vos données sont enregistrées dans Cloudflare D1.</p>
+    <form id="loginForm" class="auth-form">
+      <label>Nom d’utilisateur<input id="loginUsername" name="username" autocomplete="username" required value="admin" maxlength="80"></label>
+      <label>Mot de passe<input id="loginPassword" name="password" type="password" autocomplete="current-password" required maxlength="200"></label>
+      <div id="loginError" class="auth-error" role="alert"></div>
+      <button class="auth-submit" type="submit">Se connecter</button>
+    </form>
+    <form id="forcePasswordForm" class="auth-form" hidden>
+      <p class="intro">Pour protéger la plateforme, choisissez un nouveau mot de passe avant de continuer.</p>
+      <label>Mot de passe actuel<input id="forceCurrentPassword" name="currentPassword" type="password" autocomplete="current-password" required></label>
+      <label>Nouveau mot de passe<input id="forceNewPassword" name="newPassword" type="password" autocomplete="new-password" minlength="10" required></label>
+      <label>Confirmer le nouveau mot de passe<input id="forceConfirmPassword" name="confirmPassword" type="password" autocomplete="new-password" minlength="10" required></label>
+      <div id="forcePasswordError" class="auth-error" role="alert"></div>
+      <button class="auth-submit" type="submit">Modifier le mot de passe et continuer</button>
+    </form>
+    <div class="auth-note"><strong>Première connexion :</strong> nom d’utilisateur <strong>admin</strong> · mot de passe temporaire <strong>admin123</strong>.<br>Le changement du mot de passe est obligatoire à la première connexion.</div>
+  </div>
+</section>
+
+<div class="app home-landing" id="appRoot" hidden>
+<aside class="sidebar">
+ <div class="brand"><h1>MATRICE PARTENAIRE<br>ET PTF SÉNÉGAL</h1><p>Gestion • Suivi • Analyse • Données</p></div>
+ <nav class="nav">
+  <button class="active" onclick="showView('dashboard',this)">▦ &nbsp; Tableau de bord</button>
+  <button onclick="showView('matrice',this)">▤ &nbsp; Matrice</button><button onclick="showView('partenaires',this)">◉ &nbsp; Partenaires</button><button onclick="showView('activites',this)">◉ &nbsp; Activités</button><button onclick="showView('indicateurs',this)">◈ &nbsp; Indicateurs</button>
+  <button onclick="showView('recherche',this)">⌕ &nbsp; Recherche globale</button>
+  <button onclick="showView('sauvegarde',this)">↕ &nbsp; Sauvegarde / restauration</button>
+  <button onclick="showView('parametres',this)">⚙ &nbsp; Paramètres</button>
+ </nav>
+ <div class="sidebarBottom"><div class="copyright">SDF Technologie</div>Solution Digital du Futur @2026</div>
+</aside>
+
+<main class="main home-active">
+<div class="top"><h2 id="title">Tableau de bord</h2><div class="actions"><span id="cloudSyncStatus" class="cloud-sync-status">Connexion locale</span>
+ <button class="btn light" onclick="exportExcel()">Exporter Excel</button><button class="btn teal" onclick="window.print()">Imprimer</button>
+</div></div>
+
+<section id="accueil" class="view active">
+ <div class="senegal-home">
+  <div class="home-flag-ribbon" aria-hidden="true"><span class="green"></span><span class="gold"></span><span class="red"></span></div>
+  <header class="home-site-header">
+   <div class="home-brand" aria-label="Accueil Sénégal">
+    <div class="home-brand-mark" aria-hidden="true">
+     <svg viewBox="0 0 90 60" role="img" aria-label="Drapeau du Sénégal">
+      <rect width="30" height="60" fill="#00853f"/><rect x="30" width="30" height="60" fill="#fdef42"/><rect x="60" width="30" height="60" fill="#e31b23"/>
+      <polygon points="45,16 48.5,27 60,27 50.7,33.8 54.2,45 45,38 35.8,45 39.3,33.8 30,27 41.5,27" fill="#00853f"/>
+     </svg>
+    </div>
+    <div><p class="home-brand-name">SÉNÉGAL</p><p class="home-brand-caption">Teranga · Accueil · Unité</p></div>
+   </div>
+   <div class="home-header-location" aria-label="Lieu actuel affiché : Sénégal"><span class="home-location-dot" aria-hidden="true"></span><span>Sénégal</span></div>
+  </header>
+  <div class="home-content">
+   <section class="home-welcome-card" aria-labelledby="home-welcome-title">
+    <div class="home-flag-emblem" aria-hidden="true">
+     <svg viewBox="0 0 90 60"><rect width="30" height="60" fill="#00853f"/><rect x="30" width="30" height="60" fill="#fdef42"/><rect x="60" width="30" height="60" fill="#e31b23"/><polygon points="45,16 48.5,27 60,27 50.7,33.8 54.2,45 45,38 35.8,45 39.3,33.8 30,27 41.5,27" fill="#00853f"/></svg>
+    </div>
+    <p class="home-eyebrow">La Teranga vous souhaite la bienvenue</p>
+    <h1 id="home-welcome-title">Bienvenue <span class="home-highlight">chez vous</span></h1>
+    <p class="home-welcome-message">Nous sommes heureux de vous accueillir. Que cette journée soit placée sous le signe du partage, de la réussite et de nouvelles opportunités.</p>
+    <p class="home-greeting"><span class="home-greeting-star" aria-hidden="true">★</span> Bonjour et excellente journée !</p>
+    <div class="home-datetime-grid" aria-label="Informations actualisées en temps réel">
+     <article class="home-info-tile"><p class="home-tile-label"><span class="home-tile-icon" aria-hidden="true">▦</span> Date du jour</p><p class="home-tile-value" id="home-current-date" aria-live="off">Chargement de la date…</p></article>
+     <article class="home-info-tile"><p class="home-tile-label"><span class="home-tile-icon" aria-hidden="true">◷</span> Heure locale</p><p class="home-tile-value home-time-value" id="home-current-time" role="timer" aria-live="off">--:--:--</p><p class="home-timezone-note">Fuseau horaire : Africa/Dakar (UTC)</p></article>
+    </div>
+    <button type="button" class="home-cta" onclick="goToDashboard()">Accéder à la plateforme&nbsp; →</button>
+   </section>
+  </div>
+  <footer class="home-site-footer">Fait avec le sens de l’accueil et les couleurs du Sénégal <span class="home-footer-colors" aria-hidden="true"><span></span><span></span><span></span></span></footer>
+ </div>
+</section>
+
+<section id="dashboard" class="view">
+ <div class="cards">
+  <div class="card"><small>Partenaires</small><div class="num" id="nP">0</div></div>
+  <div class="card"><small>Fiches partenaires</small><div class="num" id="nPF">0</div></div>
+  <div class="card"><small>Activités</small><div class="num" id="nA">0</div></div>
+  <div class="card"><small>Indicateurs renseignés</small><div class="num" id="nI">0</div></div>
+  <div class="card"><small>Total enregistrements</small><div class="num" id="nT">0</div></div>
+ </div>
+ <div class="panel"><h3>Indicateurs de suivi</h3><div class="chartgrid"><div class="chartbox"><canvas id="typeChart"></canvas></div><div class="chartbox"><canvas id="completionChart"></canvas></div></div></div>
+ <div class="panel"><h3>État de la plateforme</h3><p>Les données sont enregistrées automatiquement dans votre navigateur. Utilisez régulièrement la sauvegarde JSON ou l'export Excel pour conserver une copie de sécurité.</p></div>
+</section>
+
+<section id="matrice" class="view">
+ <div class="panel"><h3>LISTE DES PARTENAIRES</h3>
+  <div class="partnerbar"><div class="field"><label>Partenaire</label><input id="partnerName" placeholder="Nom du partenaire"></div><div class="field"><label>Type</label><select id="partnerType" onchange="toggleCustomType()"><option>Public</option><option>Privé</option><option>ONG</option><option>Forum Civil</option><option value="__custom__">+ Ajouter un autre type</option></select></div><div class="field" id="customTypeWrap" style="display:none"><label>Nouveau type</label><input id="customType" placeholder="Saisir un nouveau type"></div><button class="btn primary" onclick="addPartner()">Enregistrer le partenaire</button><div class="field"><label>Partenaire enregistré</label><select id="partnerSelect" onchange="renderMatrix()"><option value="">-- Sélectionner un partenaire --</option></select></div><button class="btn danger" onclick="deletePartner()">Supprimer</button></div>
+ </div>
+ <div class="panel" id="matrixPanel"><div class="empty">Sélectionnez un partenaire.</div></div>
+</section>
+
+
+<section id="partenaires" class="view">
+ <div class="panel"><h3>Gestion des partenaires</h3>
+  <form id="partenairesForm" class="grid">
+   <div class="field"><label>Nom du partenaire *</label><input name="nom" required placeholder="Nom du partenaire"></div>
+   <div class="field"><label>Catégorie de partenaire *</label><select id="pfCategorie" name="categorie" required><option value="">-- Choisir une catégorie --</option><option>Institutionnelle</option><option>Multilatéral</option><option>Bilatéral</option><option>Secteur privé</option><option>ONG</option><option>Société civile</option><option>Elus locaux</option><option>Autres</option></select></div>
+   <div class="field"><label>Pays de rattachement</label><input name="pays" placeholder="Pays"></div>
+   <div class="field"><label>Axe stratégique SND</label><input name="axe" placeholder="Saisir l’axe stratégique SND"></div>
+   <div class="field"><label>Domaine d’intervention</label><input name="secteur" placeholder="Domaine d’intervention"></div>
+   <div class="field"><label>Durée / Date de la convention — Date début</label><input name="dateDebut" type="date"></div>
+   <div class="field"><label>Durée / Date de la convention — Date fin</label><input name="dateFin" type="date"></div>
+   <div class="field"><label>Zone d’intervention</label><input name="zone" placeholder="Zone d’intervention"></div>
+   <div class="field"><label>Type de contribution</label><select name="typeContribution" id="pfTypeContribution"></select></div>
+   <div class="field"><label>Type de financement</label><input name="financement" placeholder="Subvention, prêt, don, etc."></div>
+   <div class="field"><label>Montant</label><input name="montant" type="number" min="0" step="1" placeholder="Montant en FCFA"></div>
+   <div class="field"><label>Type de livrable</label><select name="typeLivrable" id="pfTypeLivrable"></select></div>
+   <div class="field"><label>Résolution de litiges</label><select name="resolutionLitiges" id="pfResolutionLitiges"></select></div>
+   <div class="field"><label>Téléphone</label><input name="telephone" type="tel" placeholder="Téléphone"></div>
+   <div class="field"><label>Email</label><input name="email" type="email" placeholder="email@exemple.com"></div>
+   <div class="field"><label>Site web du partenaire</label><input name="siteWeb" type="url" placeholder="https://www.exemple.org"></div>
+   <div class="row" style="grid-column:1/-1"><button class="btn primary" id="partenairesSubmit">Enregistrer le partenaire</button><button type="button" class="btn light" onclick="resetPartenaireForm()">Annuler</button></div>
+  </form>
+ </div>
+ <div class="panel"><div class="toolbar"><h3>Partenaires enregistrés</h3><div class="search"><input id="partenaireSearch" oninput="renderPartenairesFiches()" placeholder="Rechercher un partenaire, pays, secteur..."></div></div><div id="partenaireTable"></div></div>
+ <div class="panel" id="partenaireSummary"></div>
+</section>
+
+<section id="activites" class="view">
+ <div class="panel"><h3>Gestion des activités</h3>
+  <form id="activitesForm" class="grid">
+   <div class="field"><label>Structure</label><input name="structure" placeholder="Saisir la structure"></div>
+   <div class="field"><label>Division</label><input name="division" placeholder="Saisir la division"></div>
+   <div class="field"><label>Nom de l’activité *</label><input name="nom" required placeholder="Nom de l’activité"></div>
+   <div class="field"><label>Axe stratégique SND</label>
+    <details class="multiSelect" id="activityAxesDropdown">
+     <summary id="activityAxesSummary">-- Cocher un ou plusieurs axes --</summary>
+     <div class="multiOptions" id="activityAxesOptions"></div>
+    </details>
+    <div class="multiTools"><input id="newActivityAxe" placeholder="Ajouter une possibilité d’axe"><button type="button" class="btn light" onclick="addActivityAxeOption()">Ajouter</button></div>
+    <input type="hidden" name="axe" id="activityAxesValue">
+   </div>
+   <div class="field"><label>Budget alloué</label><input name="budget" type="number" min="0" step="1" placeholder="Montant en FCFA"></div>
+   <div class="field"><label>Nom du partenaire</label>
+    <details class="multiSelect" id="activityPartnersDropdown">
+     <summary id="activityPartnersSummary">-- Cocher un ou plusieurs partenaires --</summary>
+     <div class="multiOptions" id="activityPartnersOptions"></div>
+    </details>
+    <input type="hidden" name="partenaire" id="activityPartnersValue">
+   </div>
+   <div class="field"><label>Catégorie de partenaire</label><select name="categoriePartenaire"></select></div>
+   <div class="field"><label>Type de contribution reçue</label><select name="contribution"></select></div>
+   <div class="field"><label>Date début</label><input name="dateDebut" type="date"></div>
+   <div class="field"><label>Date fin</label><input name="dateFin" type="date"></div>
+   <div class="field"><label>Objectifs</label><textarea name="objectifs" rows="3" placeholder="Décrire les objectifs de l’activité"></textarea></div>
+   <div class="field"><label>Zone d’intervention</label><textarea name="zone" rows="3" placeholder="Préciser la zone d’intervention"></textarea></div>
+   <div class="field"><label>Taux d’exécution (%)</label><input name="execution" type="number" min="0" max="100" step="0.1" placeholder="0 à 100"></div>
+   <div class="field"><label>Taux de réalisation des livrables (%)</label><input name="livrables" type="number" min="0" max="100" step="0.1" placeholder="0 à 100"></div>
+   <div class="field"><label>Taux respect des délais (%)</label><input name="respectDelais" type="number" min="0" max="100" step="0.1" placeholder="0 à 100"></div>
+   <div class="field"><label>Statut alertes</label><select name="alertes"></select></div>
+   <div class="row" style="grid-column:1/-1"><button class="btn primary" id="activitesSubmit">Enregistrer l’activité</button><button type="button" class="btn light" onclick="resetActivite()">Annuler</button></div>
+  </form>
+ </div>
+ <div class="panel"><div class="toolbar"><h3>Activités enregistrées</h3><div class="search"><input id="activiteSearch" oninput="renderActivites()" placeholder="Rechercher une activité, un partenaire, un axe..."></div></div><div id="activiteTable"></div></div>
+ <div class="panel" id="activiteSummary"></div>
+</section>
+
+<section id="indicateurs" class="view">
+ <div class="panel"><h3>Indicateurs</h3><div class="notice">Saisissez les données de suivi financier, de performance, de délais et de résultats ou impacts. Les données sont conservées automatiquement dans le navigateur.</div>
+  <div class="indicatorGrid">
+   <div class="indicatorSub">
+    <h4>1. Indicateurs financiers et budgétaires</h4>
+    <h4>Taux de consommation des crédits</h4>
+    <div class="field"><label>1. Budget alloué</label><input id="indBudgetAlloue" type="number" min="0" step="1" placeholder="Montant en FCFA"></div>
+    <div class="field" style="margin-top:10px"><label>2. Budget dépensé</label><input id="indBudgetDepense" type="number" min="0" step="1" placeholder="Montant en FCFA"></div>
+    <div class="field" style="margin-top:10px"><label>3. Rapport budget dépensé et budget total alloué</label><input id="indBudgetRapport" type="number" min="0" step="0.01" readonly><div class="indicatorMeta">Rapport calculé automatiquement en pourcentage.</div></div>
+   </div>
+   <div class="indicatorSub">
+    <h4>2. Indicateurs de performance</h4>
+    <h4>Taux de réalisation des livrables</h4>
+    <div class="field"><label>1. Nombre de livrables validés ou réalisés</label><input id="indLivrablesValides" type="number" min="0" step="1"></div>
+    <div class="field" style="margin-top:10px"><label>2. Nombre total de livrables prévus</label><input id="indLivrablesPrevus" type="number" min="0" step="1"></div>
+    <div class="field" style="margin-top:10px"><label>3. Taux de réalisation en %</label><input id="indLivrablesTaux" type="number" min="0" max="100" step="0.01" readonly></div>
+    <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+    <h4>Taux de respect des délais</h4>
+    <div class="field"><label>1. Date prévue dans le planning</label><input id="indDatePrevue" type="date"></div>
+    <div class="field" style="margin-top:10px"><label>2. Date réelle de remis</label><input id="indDateReelle" type="date"></div>
+    <div class="field" style="margin-top:10px"><label>3. Écart en jours / heures</label><input id="indEcart" type="text" readonly><div class="indicatorMeta">Calcul automatique : date prévue dans le planning − date réelle de remis.</div></div>
+    <div class="field" style="margin-top:10px"><label>4. Alertes</label><div class="alertChoices">
+      <button type="button" class="alertChoice alertGreen" data-alert="vert" disabled>À temps</button>
+      <button type="button" class="alertChoice alertYellow" data-alert="jaune" disabled>Si risque</button>
+      <button type="button" class="alertChoice alertRed" data-alert="rouge" disabled>En retard</button>
+    </div><input id="indAlerte" type="hidden" value="vert"><div class="indicatorMeta">Statut automatique selon les dates : retard si la date réelle dépasse la date prévue ; risque si l’échéance est à 2 jours ou moins ; sinon à temps.</div></div>
+   </div>
+   <div class="indicatorSub">
+    <h4>3. Indicateurs de résultats ou d’impacts</h4>
+    <h4>Nombre de bénéficiaires touchés par</h4>
+    <div class="field"><label>1. Sexe</label><input id="indSexe" type="number" min="0" step="1" placeholder="Nombre"></div>
+    <div class="field" style="margin-top:10px"><label>2. Age</label><input id="indAge" placeholder="Tranche d'âge"></div>
+    <div class="field" style="margin-top:10px"><label>3. Région</label><select id="indRegion">
+      <option value="">-- Choisir une région --</option>
+      <option>Dakar</option><option>Diourbel</option><option>Fatick</option><option>Kaffrine</option><option>Kaolack</option><option>Kédougou</option><option>Kolda</option><option>Louga</option><option>Matam</option><option>Saint-Louis</option><option>Sédhiou</option><option>Tambacounda</option><option>Thiès</option><option>Ziguinchor</option>
+    </select></div>
+    <div class="field" style="margin-top:10px"><label>4. Urbain</label><input id="indUrbain" type="number" min="0" step="1" placeholder="Nombre"></div>
+    <div class="field" style="margin-top:10px"><label>5. Rural</label><input id="indRural" type="number" min="0" step="1" placeholder="Nombre"></div>
+   </div>
+  </div>
+  <div class="actions" style="margin-top:16px"><button class="btn primary" type="button" onclick="saveIndicateurs()">Enregistrer les indicateurs</button><button class="btn light" type="button" onclick="resetIndicateurs()">Réinitialiser</button></div>
+ </div>
+ <div class="panel" id="indicateursSummary"></div>
+</section>
+<section id="recherche" class="view">
+ <div class="panel"><h3>Recherche globale</h3><div class="search" style="max-width:700px"><input id="globalSearch" oninput="globalSearch()" placeholder="Rechercher un partenaire, secteur, pays, instrument, observation..."></div></div>
+ <div class="panel"><div id="globalResults" class="empty">Saisissez un terme pour rechercher dans toutes les données.</div></div>
+</section>
+
+
+<section id="parametres" class="view">
+ <div class="panel"><h3>⚙ Paramètres</h3>
+  <div class="notice">Renseignez vos informations et gérez les éléments de configuration utiles à la plateforme. Le nom de la matrice, le sous-titre et le pied de page sont fixes.</div>
+  <form id="settingsInfoForm" class="grid">
+   <div class="field"><label>Prénom</label><input name="prenom" placeholder="Votre prénom"></div>
+   <div class="field"><label>Nom</label><input name="nom" placeholder="Votre nom"></div>
+   <div class="field"><label>Ministère</label><input name="ministere" placeholder="Nom du ministère"></div>
+   <div class="field"><label>Service / Direction</label><input name="service" placeholder="Votre service ou direction"></div>
+   <div class="field"><label>Poste occupé</label><input name="poste" placeholder="Votre poste occupé"></div>
+   <div class="field"><label>Téléphone</label><input name="phone" placeholder="Numéro de téléphone"></div>
+   <div class="field"><label>Email</label><input type="email" name="email" placeholder="Adresse email"></div>
+   <div class="field"><label>Nom d'utilisateur</label><input name="username" value="admin" placeholder="Nom d'utilisateur"></div>
+   <div class="field"><label>Mot de passe actuel (pour changement)</label><input type="password" name="currentPassword" autocomplete="current-password" placeholder="Mot de passe actuel"></div>
+   <div class="field"><label>Nouveau mot de passe</label><input type="password" name="newPassword" autocomplete="new-password" minlength="10" placeholder="10 caractères minimum"></div>
+   <div class="row" style="grid-column:1/-1"><button class="btn primary">Enregistrer les informations utilisateur</button><button type="button" class="btn light" onclick="resetSettingsInfo()">Réinitialiser</button></div>
+  </form>
+ </div>
+ <div class="panel"><h3>Gestion des sections de la matrice</h3>
+  <div class="notice">Ajoutez, modifiez ou supprimez les rubriques de la matrice. Les doublons sont automatiquement refusés.</div>
+  <div class="row" style="margin-bottom:12px"><input id="newRubrique" placeholder="Nouvelle section / rubrique" style="flex:1"><button class="btn primary" type="button" onclick="addRubriqueSetting()">Ajouter</button></div>
+  <div id="rubriquesSettingsList"></div>
+ </div>
+ <div class="panel"><h3>Gestion des partenaires</h3>
+  <div class="notice">Configurez ici les listes utilisées dans le formulaire « Partenaires ». Les doublons sont automatiquement refusés.</div>
+  <h4 style="margin:14px 0 8px">Type de contribution</h4>
+  <div class="row" style="margin-bottom:12px"><input id="newPartnerContributionType" placeholder="Ex. Financier, Technique, Plaidoyer..." style="flex:1"><button class="btn primary" type="button" onclick="addPartnerContributionType()">Ajouter</button></div>
+  <div id="partnerContributionTypesSettingsList"></div>
+  <h4 style="margin:18px 0 8px">Type de livrable</h4>
+  <div class="row" style="margin-bottom:12px"><input id="newPartnerDeliverableType" placeholder="Nouveau type de livrable" style="flex:1"><button class="btn primary" type="button" onclick="addPartnerDeliverableType()">Ajouter</button></div>
+  <div id="partnerDeliverableTypesSettingsList"></div>
+  <h4 style="margin:18px 0 8px">Résolution de litiges</h4>
+  <div class="row" style="margin-bottom:12px"><input id="newPartnerLitigationResolution" placeholder="Nouvelle modalité de résolution" style="flex:1"><button class="btn primary" type="button" onclick="addPartnerLitigationResolution()">Ajouter</button></div>
+  <div id="partnerLitigationResolutionsSettingsList"></div>
+ </div>
+ <div class="panel"><h3>Gestion des activités</h3>
+  <div class="notice">Configurez ici les éléments utilisés dans le formulaire « Activités ». Les catégories et statuts restent configurables ; les axes stratégiques SND se gèrent directement dans le formulaire Activités.</div>
+  <h4 style="margin:14px 0 8px">Catégorie</h4>
+  <div class="row" style="margin-bottom:12px"><input id="newPartnerCategory" placeholder="Nouvelle catégorie de partenaire" style="flex:1"><button class="btn primary" type="button" onclick="addPartnerCategory()">Ajouter</button></div>
+  <div id="partnerCategoriesSettingsList"></div>
+  <h4 style="margin:18px 0 8px">Statut alerte</h4>
+  <div class="row" style="margin-bottom:12px"><input id="newAlertStatus" placeholder="Nouveau statut d’alerte" style="flex:1"><button class="btn primary" type="button" onclick="addAlertStatus()">Ajouter</button></div>
+  <div id="alertStatusesSettingsList"></div>
+ </div>
+</section>
+<section id="sauvegarde" class="view">
+ <div class="panel"><h3>Sauvegarde et restauration</h3><div class="notice">La sauvegarde JSON contient toutes les données de la plateforme, y compris les matrices des partenaires.</div>
+ <div class="actions"><button class="btn primary" onclick="backupJSON()">⬇ Télécharger une sauvegarde JSON</button><label class="btn gold">⬆ Restaurer une sauvegarde<input type="file" accept=".json" onchange="restoreJSON(event)" hidden></label><button class="btn danger" onclick="resetAll()">Effacer toutes les données</button></div></div>
+ <div class="panel"><h3>Export Excel</h3><p>Un classeur Excel est généré avec les données actives de la plateforme : Partenaires, Matrice, Paramètres, Activités et Partenaires fiches.</p><button class="btn teal" onclick="exportExcel()">Exporter toutes les données en Excel</button></div>
+</section>
+<div class="footerMobile">SDF Technologie — Solution Digital du Futur @2026</div>
+</main></div>
+
+<div class="modal" id="modal"><div class="modalbox"><h3 id="modalTitle">Modifier</h3><div id="modalBody"></div></div></div>
+
+<script defer src="/assets/js/app.js"></script>
+</body>
+</html>

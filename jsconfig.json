@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "checkJs": false,
+    "allowJs": true
+  },
+  "include": ["api/**/*.js", "public/assets/js/**/*.js"]
+}

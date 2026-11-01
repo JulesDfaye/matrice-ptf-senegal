@@ -1,0 +1,134 @@
+
+:root{--p:#123b63;--s:#087f8c;--a:#d9a441;--bg:#f3f6f9;--text:#17212b;--muted:#64748b;--line:#dce4ea;--white:#fff;--danger:#b42318}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit}button{cursor:pointer}.app{display:flex;min-height:100vh}
+.sidebar{width:275px;position:fixed;inset:0 auto 0 0;background:linear-gradient(180deg,#0e3153,#075764);color:#fff;padding:20px 15px;display:flex;flex-direction:column;overflow:auto}
+.brand{padding:5px 11px 20px;border-bottom:1px solid #ffffff2b}.brand h1{font-size:18px;line-height:1.25;margin:0 0 7px}.brand p{font-size:11px;color:#d6eef0;margin:0}
+.nav{margin-top:15px}.nav button{width:100%;border:0;background:transparent;color:#eaf7f8;text-align:left;padding:12px 13px;border-radius:9px;margin:3px 0;font-weight:650}.nav button:hover,.nav button.active{background:#ffffff1c}
+.sidebarBottom{margin-top:auto;border-top:1px solid #ffffff2b;padding:15px 11px 3px;font-size:11px;color:#d7eef0;line-height:1.5}.copyright{font-weight:800;color:#fff;font-size:12px}
+.main{margin-left:275px;width:calc(100% - 275px);padding:24px}.top{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:18px}.top h2{margin:0;font-size:25px}.actions,.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{border:0;border-radius:8px;padding:9px 13px;font-weight:650}.primary{background:var(--p);color:#fff}.teal{background:var(--s);color:#fff}.gold{background:var(--a);color:#18202a}.light{background:#fff;border:1px solid var(--line);color:var(--text)}.danger{background:#fff0ef;color:var(--danger);border:1px solid #f0c5c0}
+.view{display:none}.view.active{display:block}.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:17px;box-shadow:0 3px 12px #123b630b}.panel h3{margin:0 0 14px;color:var(--p)}
+.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin-bottom:17px}.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px}.card small{color:var(--muted)}.num{font-size:27px;font-weight:800;color:var(--p);margin-top:5px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:12px;font-weight:750;color:#334155}.field input,.field select,.field textarea{border:1px solid #cbd5e1;border-radius:7px;padding:9px;background:#fff;outline:none}.field textarea{min-height:80px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--s);box-shadow:0 0 0 3px #087f8c16}
+.toolbar{display:flex;justify-content:space-between;gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:13px}.search{min-width:280px}.search input{width:100%;padding:10px;border:1px solid var(--line);border-radius:7px}.filters{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:9px;margin-bottom:13px}.filters input,.filters select{padding:9px;border:1px solid var(--line);border-radius:7px;background:#fff}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:8px}table{width:100%;border-collapse:collapse;min-width:900px}th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:12px;vertical-align:top}th{background:#eef5f7;color:var(--p);white-space:nowrap}tr:hover td{background:#fbfdfe}
+.badge{display:inline-block;padding:4px 8px;border-radius:30px;background:#e7f4f5;color:#075d68;font-weight:700;font-size:10px}.empty{text-align:center;padding:30px;color:var(--muted)}
+.partnerbar{display:grid;grid-template-columns:1fr auto 1fr auto;gap:9px;align-items:end}.partnerbar input,.partnerbar select{padding:10px;border:1px solid var(--line);border-radius:7px;width:100%}
+.rubric{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:12px}.rubric h4{margin:0;padding:11px 13px;background:#edf5f6;color:var(--p);font-size:14px}.criteria{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px}
+.chartgrid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.chartbox{height:300px}.chartbox canvas{max-width:100%;max-height:100%}.notice{padding:11px 13px;background:#fff8e7;border-left:4px solid var(--a);border-radius:5px;font-size:12px;margin-bottom:13px}
+.alertChoices{display:flex;gap:10px;flex-wrap:wrap}.alertChoice{border:2px solid transparent;border-radius:8px;padding:10px 16px;font-weight:750;background:#fff;transition:.15s}.alertChoice:hover{transform:translateY(-1px)}.alertChoice.active{box-shadow:0 0 0 3px #123b6314}.alertGreen{background:#dcfce7;color:#166534;border-color:#22c55e}.alertChoice:disabled{opacity:1;cursor:default}.alertChoice:disabled:hover{transform:none}.alertYellow{background:#fef9c3;color:#854d0e;border-color:#eab308}.alertRed{background:#fee2e2;color:#991b1b;border-color:#ef4444}
+.modal{display:none;position:fixed;inset:0;background:#0008;z-index:10;align-items:center;justify-content:center;padding:20px}.modal.open{display:flex}.modalbox{background:#fff;border-radius:12px;padding:20px;width:min(760px,100%);max-height:90vh;overflow:auto}.modalbox h3{margin-top:0;color:var(--p)}
+.footerMobile{display:none}
+.multiSelect{position:relative}.multiSelect summary{list-style:none;cursor:pointer;border:1px solid #cbd5e1;border-radius:7px;padding:9px;background:#fff;min-height:39px}.multiSelect summary::-webkit-details-marker{display:none}.multiOptions{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px;max-height:220px;overflow:auto;box-shadow:0 10px 24px #123b6320}.multiOption{display:flex;align-items:center;gap:8px;padding:7px 6px;border-radius:6px;font-size:12px}.multiOption:hover{background:#f5f8fa}.multiOption input{width:auto}.multiTools{display:flex;gap:7px;margin-top:7px}.multiTools input{flex:1}.multiTools button{padding:7px 10px}
+@media(max-width:1050px){.cards{grid-template-columns:repeat(3,1fr)}.filters{grid-template-columns:1fr 1fr}.partnerbar{grid-template-columns:1fr 1fr}.chartgrid{grid-template-columns:1fr}}
+@media(max-width:720px){.sidebar{position:static;width:100%;height:auto}.app{display:block}.main{margin:0;width:100%;padding:14px}.cards,.grid,.criteria{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.filters{grid-template-columns:1fr}.partnerbar{grid-template-columns:1fr}.sidebarBottom{display:none}.footerMobile{display:block;text-align:center;color:var(--muted);font-size:11px;padding:15px}}
+
+/* ==============================
+   Accueil Sénégal intégré
+   Styles isolés pour préserver le design de l'application.
+   ============================== */
+/* L'accueil est la première vue : l'application reste masquée tant que l'utilisateur n'a pas cliqué sur le bouton. */
+.app.home-landing .sidebar{display:none}
+.app.home-landing .main{margin-left:0;width:100%;padding:0}
+.main.home-active{padding:0}
+.main.home-active>.top{display:none}
+.senegal-home{
+  --home-green:#087a45;--home-green-dark:#075b36;--home-gold:#f5c542;--home-red:#d93636;
+  --home-ink:#17251e;--home-muted:#64736b;--home-surface:rgba(255,255,255,.88);
+  --home-line:rgba(18,65,43,.10);--home-shadow:0 24px 70px rgba(13,55,36,.14);
+  min-height:100vh;width:100%;display:flex;flex-direction:column;overflow:hidden;color:var(--home-ink);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:radial-gradient(circle at 10% 12%,rgba(8,122,69,.12),transparent 27rem),
+             radial-gradient(circle at 92% 88%,rgba(217,54,54,.09),transparent 25rem),
+             linear-gradient(135deg,#f7fbf8 0%,#fffdf6 52%,#fff8f7 100%);
+}
+.senegal-home .home-flag-ribbon{display:flex;flex:0 0 5px;height:5px;width:100%;opacity:.92;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.senegal-home .home-flag-ribbon span{flex:1}
+.senegal-home .home-flag-ribbon .green{background:var(--home-green)}
+.senegal-home .home-flag-ribbon .gold{background:var(--home-gold)}
+.senegal-home .home-flag-ribbon .red{background:var(--home-red)}
+.senegal-home .home-site-header{width:min(1160px,calc(100% - 48px));margin:0 auto;padding:28px 0;display:flex;align-items:center;justify-content:space-between;gap:24px;animation:home-slide-down 700ms ease both}
+.senegal-home .home-brand{display:flex;align-items:center;gap:13px;min-width:0}
+.senegal-home .home-brand-mark{display:grid;place-items:center;width:48px;height:48px;border-radius:15px;background:#fff;box-shadow:0 8px 22px rgba(13,55,36,.10);overflow:hidden;flex:0 0 auto}
+.senegal-home .home-brand-mark svg{width:38px;height:26px;display:block}
+.senegal-home .home-brand-name{margin:0;font-size:.98rem;font-weight:800;letter-spacing:.04em;color:#17251e}
+.senegal-home .home-brand-caption{margin:3px 0 0;color:var(--home-muted);font-size:.78rem}
+.senegal-home .home-header-location{display:inline-flex;align-items:center;gap:9px;padding:10px 15px;border:1px solid var(--home-line);border-radius:999px;color:var(--home-green-dark);background:rgba(255,255,255,.66);font-size:.88rem;font-weight:700;backdrop-filter:blur(10px)}
+.senegal-home .home-location-dot{width:8px;height:8px;border-radius:50%;background:var(--home-green);box-shadow:0 0 0 4px rgba(8,122,69,.11)}
+.senegal-home .home-content{width:min(1040px,calc(100% - 40px));flex:1;display:grid;place-items:center;margin:0 auto;padding:48px 0 66px}
+.senegal-home .home-welcome-card{position:relative;width:100%;padding:clamp(32px,6vw,68px);border:1px solid rgba(255,255,255,.88);border-radius:32px;background:var(--home-surface);box-shadow:var(--home-shadow);text-align:center;overflow:hidden;backdrop-filter:blur(18px);animation:home-fade-up 850ms 120ms ease both}
+.senegal-home .home-welcome-card::before{content:"";position:absolute;inset:0 0 auto;height:6px;background:linear-gradient(90deg,var(--home-green) 0 33.333%,var(--home-gold) 33.333% 66.666%,var(--home-red) 66.666% 100%)}
+.senegal-home .home-welcome-card::after{content:"";position:absolute;width:280px;height:280px;right:-150px;top:-155px;border:1px solid rgba(8,122,69,.09);border-radius:50%;box-shadow:0 0 0 24px rgba(8,122,69,.025),0 0 0 48px rgba(8,122,69,.02);pointer-events:none}
+.senegal-home .home-flag-emblem{position:relative;display:grid;place-items:center;width:94px;height:94px;margin:0 auto 25px;border:1px solid rgba(8,122,69,.10);border-radius:28px;background:#fff;box-shadow:0 12px 28px rgba(13,55,36,.10);transition:transform 250ms ease,box-shadow 250ms ease}
+.senegal-home .home-flag-emblem:hover{transform:translateY(-5px) rotate(-2deg);box-shadow:0 18px 34px rgba(13,55,36,.15)}
+.senegal-home .home-flag-emblem svg{width:67px;height:46px}
+.senegal-home .home-eyebrow{margin:0 0 12px;color:var(--home-green);font-size:.78rem;font-weight:800;letter-spacing:.19em;text-transform:uppercase}
+.senegal-home .home-welcome-card h1{margin:0;color:#152c20;font-size:clamp(2.25rem,6vw,4.7rem);line-height:1.06;letter-spacing:-.055em;font-weight:800}
+.senegal-home .home-highlight{position:relative;display:inline-block;color:var(--home-green)}
+.senegal-home .home-highlight::after{content:"";position:absolute;left:5%;right:5%;bottom:-7px;height:8px;border-radius:999px;background:linear-gradient(90deg,rgba(8,122,69,.18),rgba(245,197,66,.58),rgba(217,54,54,.15));transform:scaleX(.9);transform-origin:left}
+.senegal-home .home-welcome-message{max-width:650px;margin:25px auto 0;color:#53645a;font-size:clamp(1rem,2vw,1.16rem);line-height:1.8}
+.senegal-home .home-greeting{display:inline-flex;align-items:center;gap:10px;margin:27px 0 0;padding:12px 19px;border:1px solid rgba(8,122,69,.13);border-radius:999px;color:var(--home-green-dark);background:rgba(8,122,69,.055);font-weight:800;font-size:1.02rem;transition:background 220ms ease,transform 220ms ease}
+.senegal-home .home-greeting:hover{background:rgba(8,122,69,.10);transform:translateY(-2px)}
+.senegal-home .home-greeting-star{color:#d3a21a;font-size:1.1rem}
+.senegal-home .home-datetime-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:650px;margin:42px auto 0}
+.senegal-home .home-info-tile{min-width:0;padding:20px 22px;border:1px solid var(--home-line);border-radius:20px;background:rgba(255,255,255,.78);text-align:left;transition:transform 220ms ease,box-shadow 220ms ease,border-color 220ms ease}
+.senegal-home .home-info-tile:hover{transform:translateY(-4px);border-color:rgba(8,122,69,.22);box-shadow:0 12px 24px rgba(13,55,36,.07)}
+.senegal-home .home-tile-label{display:flex;align-items:center;gap:8px;margin:0 0 9px;color:#748178;font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.senegal-home .home-tile-icon{color:var(--home-green);font-size:1rem}
+.senegal-home .home-tile-value{margin:0;color:#1b3024;font-size:clamp(1rem,2.4vw,1.25rem);font-weight:750;line-height:1.45;overflow-wrap:anywhere}
+.senegal-home .home-time-value{font-variant-numeric:tabular-nums;letter-spacing:.04em;font-size:clamp(1.55rem,4vw,2rem)}
+.senegal-home .home-timezone-note{margin:8px 0 0;color:#849087;font-size:.76rem}
+.senegal-home .home-cta{margin-top:28px;padding:13px 22px;border:0;border-radius:999px;background:linear-gradient(100deg,#087a45,#075b36);color:#fff;font-weight:800;box-shadow:0 10px 24px rgba(8,122,69,.18);transition:transform 200ms ease,box-shadow 200ms ease}
+.senegal-home .home-cta:hover{transform:translateY(-3px);box-shadow:0 15px 28px rgba(8,122,69,.24)}
+.senegal-home .home-site-footer{padding:22px 20px 28px;color:#748178;text-align:center;font-size:.82rem;animation:home-fade-in 1s 450ms ease both}
+.senegal-home .home-footer-colors{display:inline-flex;gap:4px;margin:0 7px;vertical-align:middle}
+.senegal-home .home-footer-colors span{width:13px;height:4px;border-radius:10px}
+.senegal-home .home-footer-colors span:nth-child(1){background:var(--home-green)}
+.senegal-home .home-footer-colors span:nth-child(2){background:var(--home-gold)}
+.senegal-home .home-footer-colors span:nth-child(3){background:var(--home-red)}
+@keyframes home-fade-up{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes home-fade-in{from{opacity:0}to{opacity:1}}
+@keyframes home-slide-down{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:640px){
+ .senegal-home .home-site-header{width:min(100% - 32px,1160px);padding:19px 0}
+ .senegal-home .home-brand-caption{display:none}
+ .senegal-home .home-header-location{padding:9px 12px;font-size:.78rem}
+ .senegal-home .home-content{width:min(100% - 28px,1040px);padding:34px 0 42px}
+ .senegal-home .home-welcome-card{border-radius:25px}
+ .senegal-home .home-flag-emblem{width:80px;height:80px;border-radius:24px}
+ .senegal-home .home-datetime-grid{grid-template-columns:1fr;margin-top:32px}
+ .senegal-home .home-info-tile{padding:17px 18px}
+ .senegal-home .home-site-footer{padding-bottom:22px}
+}
+@media(max-width:380px){.senegal-home .home-brand-name{font-size:.86rem}.senegal-home .home-header-location{gap:7px;font-size:.72rem}.senegal-home .home-welcome-card{padding:30px 20px}}
+@media(prefers-reduced-motion:reduce){.senegal-home *, .senegal-home *::before, .senegal-home *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+
+
+/* Authentification Cloudflare : écran isolé de connexion */
+.auth-screen{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 12% 12%,#0b8b5d22,transparent 28rem),linear-gradient(135deg,#f3f8f5,#fdf9ed)}
+.auth-card{width:min(460px,100%);background:#fff;border:1px solid #dce4ea;border-radius:20px;padding:clamp(24px,5vw,38px);box-shadow:0 24px 70px #123b631c;animation:auth-enter .45s ease both}
+.auth-brand{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+.auth-logo{width:58px;height:40px;display:grid;place-items:center;border-radius:9px;background:#fff;box-shadow:0 5px 18px #123b6314;overflow:hidden}
+.auth-logo svg{width:48px;height:32px}
+.auth-brand h1{font-size:16px;line-height:1.3;margin:0;color:#123b63;letter-spacing:0}
+.auth-brand p{font-size:12px;margin:4px 0 0;color:#64748b}
+.auth-card h2{font-size:24px;margin:0 0 8px;color:#123b63}
+.auth-card .intro{font-size:13px;color:#64748b;line-height:1.6;margin:0 0 22px}
+.auth-form{display:grid;gap:14px}
+.auth-form label{font-size:12px;font-weight:750;color:#334155;display:grid;gap:7px}
+.auth-form input{width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px 13px;outline:none}
+.auth-form input:focus{border-color:#087f8c;box-shadow:0 0 0 3px #087f8c16}
+.auth-submit{border:0;border-radius:9px;padding:13px 16px;background:#123b63;color:#fff;font-weight:750;margin-top:5px}
+.auth-submit:hover{background:#075764;transform:translateY(-1px)}
+.auth-error{display:none;background:#fff0ef;border:1px solid #f1c7c2;color:#a4261d;padding:10px 12px;border-radius:8px;font-size:12px}
+.auth-note{margin:18px 0 0;padding:12px;border-radius:9px;background:#f4f8fa;color:#64748b;font-size:11px;line-height:1.6}
+.auth-note strong{color:#334155}
+#appRoot[hidden],#authScreen[hidden]{display:none!important}
+@keyframes auth-enter{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+.cloud-sync-status{font-size:11px;color:#64748b;align-self:center}
+.logout-btn{display:block;margin-top:10px;border:1px solid #ffffff45;background:#ffffff12;color:#fff;border-radius:7px;padding:8px 10px;width:100%;font-size:11px;font-weight:700}
+.logout-btn:hover{background:#ffffff25}
+
+.auth-card form[hidden]{display:none!important}

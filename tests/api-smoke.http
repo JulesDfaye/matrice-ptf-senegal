@@ -1,0 +1,11 @@
+### Santé de l'API
+GET http://localhost:8787/api/health
+
+### Connexion locale - changez le mot de passe après le premier accès
+POST http://localhost:8787/api/auth/login
+Content-Type: application/json
+
+{"username":"admin","password":"admin123"}
+
+### Profil courant (la requête doit réutiliser le cookie de session)
+GET http://localhost:8787/api/auth/me
