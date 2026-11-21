@@ -381,7 +381,7 @@ function sanitizePermissions(input = {}) {
 // Gestion des comptes : uniquement administrateur. Le compte admin initial est protégé.
 app.get('/api/admin/users', requireAuth, requirePasswordUpdated, async c => {
   if ((await getRole(c)).role !== 'admin') return jsonError(c, 'Réservé à l’administrateur.', 403);
-  const { results=[] } = await c.env.DB.prepare(`SELECT u.id,u.username,u.first_name,u.last_name,u.email,COALESCE(r.role,CASE WHEN u.id='admin-root-001' THEN 'admin' ELSE 'utilisateur' END) role,COALESCE(r.permissions_json,'{}') permissions_json,COALESCE(r.active,1) active FROM users u LEFT JOIN user_roles r ON r.user_id=u.id ORDER BY u.username`).all();
+  const { results=[] } = await c.env.DB.prepare(`SELECT u.id,u.username,u.first_name,u.last_name,u.position,u.email,COALESCE(r.role,CASE WHEN u.id='admin-root-001' THEN 'admin' ELSE 'utilisateur' END) role,COALESCE(r.permissions_json,'{}') permissions_json,COALESCE(r.active,1) active FROM users u LEFT JOIN user_roles r ON r.user_id=u.id ORDER BY u.username`).all();
   return c.json({ok:true,users:results.map(x=>({...x,permissions:(()=>{try{return JSON.parse(x.permissions_json)}catch{return {}}})(),permissions_json:undefined}))});
 });
 app.post('/api/admin/users', requireAuth, requirePasswordUpdated, async c => {
@@ -393,7 +393,7 @@ app.post('/api/admin/users', requireAuth, requirePasswordUpdated, async c => {
   // L'adresse email devient le nom d'utilisateur unique du compte.
   const username=email;
   const salt=randomHex(16), hash=await hashPassword(password,salt,PASSWORD_ITERATIONS), id=crypto.randomUUID();
-  try { await c.env.DB.prepare(`INSERT INTO users(id,username,password_hash,password_salt,password_iterations,first_name,last_name,email,must_change_password) VALUES(?,?,?,?,?,?,?,?,1)`).bind(id,username,hash,salt,PASSWORD_ITERATIONS,String(b.firstName||'').slice(0,100),String(b.lastName||'').slice(0,100),email).run(); }
+  try { await c.env.DB.prepare(`INSERT INTO users(id,username,password_hash,password_salt,password_iterations,first_name,last_name,position,email,must_change_password) VALUES(?,?,?,?,?,?,?,?,?,1)`).bind(id,username,hash,salt,PASSWORD_ITERATIONS,String(b.firstName||'').slice(0,100),String(b.lastName||'').slice(0,100),String(b.position||'').slice(0,160),email).run(); }
   catch (error) { console.error('Création utilisateur impossible:', error); return jsonError(c,'Cette adresse email est déjà utilisée ou le compte ne peut pas être créé.',409); }
   await c.env.DB.prepare(`INSERT INTO user_roles(user_id,role,permissions_json,active) VALUES(?,?,?,1)`).bind(id,'utilisateur',JSON.stringify(sanitizePermissions(b.permissions||{}))).run();
   await writeAudit(c.env.DB,c.get('user').id,'user_created',await getRequestIpHash(c.req.raw),{username});
@@ -405,6 +405,7 @@ app.put('/api/admin/users/:id', requireAuth, requirePasswordUpdated, async c => 
   let b; try{b=await c.req.json()}catch{return jsonError(c,'Corps JSON invalide.');}
   const role=b.role==='admin'?'admin':'utilisateur', active=b.active===false?0:1, permissions=role==='admin'?{}:sanitizePermissions(b.permissions||{});
   const exists=await c.env.DB.prepare('SELECT id FROM users WHERE id=?').bind(id).first(); if(!exists)return jsonError(c,'Utilisateur introuvable.',404);
+  if (typeof b.position === 'string') await c.env.DB.prepare('UPDATE users SET position=? WHERE id=?').bind(b.position.trim().slice(0,160),id).run();
   await c.env.DB.prepare(`INSERT INTO user_roles(user_id,role,permissions_json,active,updated_at) VALUES(?,?,?,?,datetime('now')) ON CONFLICT(user_id) DO UPDATE SET role=excluded.role,permissions_json=excluded.permissions_json,active=excluded.active,updated_at=datetime('now')`).bind(id,role,JSON.stringify(permissions),active).run();
   if(!active) await c.env.DB.prepare('DELETE FROM sessions WHERE user_id=?').bind(id).run();
   await writeAudit(c.env.DB,c.get('user').id,'user_permissions_updated',await getRequestIpHash(c.req.raw),{target:id,role,active});

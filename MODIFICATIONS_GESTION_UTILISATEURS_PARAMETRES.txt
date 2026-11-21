@@ -1,0 +1,22 @@
+MODIFICATION — PARAMÈTRES / GESTION DES UTILISATEURS
+
+La rubrique Paramètres contient désormais un accès direct « Gestion des utilisateurs ».
+L'administrateur peut :
+- créer un compte avec l'adresse email comme nom d'utilisateur ;
+- renseigner prénom, nom et fonction/poste occupé ;
+- définir un mot de passe temporaire (10 caractères minimum) ;
+- attribuer les autorisations par module ;
+- consulter les comptes, leur fonction, leur profil et leur état ;
+- configurer la fonction, le profil et les autorisations d'un compte existant ;
+- activer/désactiver un compte et promouvoir/rétrograder un utilisateur.
+
+La fonction est enregistrée dans la colonne users.position.
+Le formulaire de gestion est réservé au profil administrateur, avec contrôle API côté serveur.
+
+Après remplacement des fichiers dans le dépôt, exécuter :
+  npm install
+  npm run check
+Puis publier les modifications sur GitHub et laisser Vercel redéployer.
+
+Important : ce ZIP est une mise à jour de l'interface et des routes déjà présentes dans le projet fourni.
+Avant mise en production, vérifier que DATABASE_URL et les migrations Neon sont configurées dans Vercel/Neon.
