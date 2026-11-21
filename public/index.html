@@ -246,6 +246,7 @@
    <button class="btn light" type="button" onclick="document.getElementById('settingsMatrixPanel').scrollIntoView({behavior:'smooth',block:'start'})">Sections de la matrice</button>
    <button class="btn light" type="button" onclick="document.getElementById('settingsPartnersPanel').scrollIntoView({behavior:'smooth',block:'start'})">Partenaires</button>
    <button class="btn light" type="button" onclick="document.getElementById('settingsActivitiesPanel').scrollIntoView({behavior:'smooth',block:'start'})">Activités</button>
+   <button class="btn light" type="button" onclick="document.getElementById('settingsMessagesPanel').scrollIntoView({behavior:'smooth',block:'start'})">✉ Messages visiteurs</button>
   </div>
   <div class="panel" id="settingsUsersPanel"><h3>♙ Création et configuration des utilisateurs</h3><p>Créez les comptes, renseignez la fonction de chaque personne et définissez son profil ainsi que ses autorisations. L’adresse email sert de nom d’utilisateur.</p>
    <form id="createUserForm" class="grid" onsubmit="createPlatformUser(event)">
@@ -259,6 +260,7 @@
    </form>
    <h4 style="margin-top:24px">Comptes et fonctions enregistrés</h4><div id="platformUsersList" class="empty">Chargement des comptes…</div>
   </div>
+  <div class="panel" id="settingsMessagesPanel"><h3>✉ Messages reçus des visiteurs</h3><p>Les messages envoyés depuis la vitrine publique arrivent ici. Vous pouvez les marquer comme lus ou traités.</p><div id="contactMessagesList" class="empty">Chargement des messages…</div></div>
   <form id="settingsInfoForm" class="grid">
    <div class="field"><label>Prénom</label><input name="prenom" placeholder="Votre prénom"></div>
    <div class="field"><label>Nom</label><input name="nom" placeholder="Votre nom"></div>

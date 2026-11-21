@@ -411,6 +411,36 @@ app.put('/api/admin/users/:id', requireAuth, requirePasswordUpdated, async c => 
   await writeAudit(c.env.DB,c.get('user').id,'user_permissions_updated',await getRequestIpHash(c.req.raw),{target:id,role,active});
   return c.json({ok:true});
 });
+// Formulaire de contact public : les messages sont conservés dans Neon et consultables par l'administrateur.
+app.post('/api/public/contact', async c => {
+  let b; try { b = await c.req.json(); } catch { return jsonError(c, 'Formulaire invalide.'); }
+  if (String(b.website || '').trim()) return c.json({ ok: true, message: 'Votre message a été envoyé.' }, 201); // honeypot anti-robot
+  const firstName = String(b.firstName || '').trim();
+  const lastName = String(b.lastName || '').trim();
+  const email = String(b.email || '').trim().toLowerCase();
+  const contact = String(b.contact || '').trim();
+  const message = String(b.message || '').trim();
+  if (!firstName || !lastName || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !contact || !message) return jsonError(c, 'Veuillez renseigner tous les champs obligatoires avec une adresse email valide.');
+  if (firstName.length > 100 || lastName.length > 100 || email.length > 180 || contact.length > 60 || message.length > 5000) return jsonError(c, 'Un champ dépasse la longueur autorisée.');
+  const id = crypto.randomUUID();
+  await c.env.DB.prepare(`INSERT INTO contact_messages (id, first_name, last_name, email, contact, message, status) VALUES (?, ?, ?, ?, ?, ?, 'nouveau')`)
+    .bind(id, firstName, lastName, email, contact, message).run();
+  return c.json({ ok: true, message: 'Votre message a bien été transmis à l’administration.' }, 201);
+});
+app.get('/api/admin/contact-messages', requireAuth, requirePasswordUpdated, async c => {
+  if ((await getRole(c)).role !== 'admin') return jsonError(c, 'Réservé à l’administrateur.', 403);
+  const { results = [] } = await c.env.DB.prepare(`SELECT id, first_name, last_name, email, contact, message, status, created_at FROM contact_messages ORDER BY created_at DESC LIMIT 300`).all();
+  return c.json({ ok: true, messages: results });
+});
+app.patch('/api/admin/contact-messages/:id', requireAuth, requirePasswordUpdated, async c => {
+  if ((await getRole(c)).role !== 'admin') return jsonError(c, 'Réservé à l’administrateur.', 403);
+  let b; try { b = await c.req.json(); } catch { return jsonError(c, 'Corps JSON invalide.'); }
+  const status = ['nouveau', 'lu', 'traite'].includes(b.status) ? b.status : null;
+  if (!status) return jsonError(c, 'Statut de message invalide.');
+  await c.env.DB.prepare(`UPDATE contact_messages SET status=?, updated_at=NOW()::timestamp::text WHERE id=?`).bind(status, c.req.param('id')).run();
+  return c.json({ ok: true });
+});
+
 app.get('/api/public/showcase', async c => {
   const {results=[]}=await c.env.DB.prepare(`SELECT id,content_type,title,summary,payload_json,published_at FROM public_publications WHERE is_published=1 ORDER BY published_at DESC`).all();
   const items=results.map(r=>{let payload={};try{payload=JSON.parse(r.payload_json||'{}')}catch{}return {...r,payload,payload_json:undefined}});

@@ -84,3 +84,12 @@ Les données localStorage sont propres à chaque navigateur et ordinateur : les 
 Depuis l'espace Administrateur > Gestion des utilisateurs, saisir une adresse email et un mot de passe temporaire (10 caractères minimum). L'adresse email est automatiquement utilisée comme nom d'utilisateur et comme identifiant de connexion. À la première connexion, l'utilisateur doit définir un nouveau mot de passe. Les anciens comptes conservent leur identifiant existant ; ils peuvent également se connecter avec leur adresse email si elle est renseignée.
 
 Pour une base Neon déjà initialisée, exécuter une seule fois `migrations/neon-email-username.sql` dans le SQL Editor Neon avant le redéploiement.
+
+
+## Vitrine publique et messages visiteurs
+
+- La page `public/vitrine.html` présente les fonctionnalités de la plateforme et les publications validées.
+- Le formulaire public transmet les messages à `POST /api/public/contact`.
+- Exécuter une seule fois `migrations/neon-contact-messages.sql` dans Neon SQL Editor avant le déploiement.
+- Les messages reçus sont consultables par l'administrateur dans **Paramètres → Messages visiteurs**. L'administrateur peut les marquer Nouveau, Lu ou Traité.
+- Cette version stocke les messages dans la boîte de réception de la plateforme. L'envoi d'une notification par email nécessite une configuration complémentaire d'un service de messagerie (SMTP ou fournisseur transactionnel).
