@@ -1,0 +1,14 @@
+### Profil courant (session requise)
+GET http://localhost:8787/api/access/me
+
+### Liste utilisateurs (admin uniquement)
+GET http://localhost:8787/api/access/users
+
+### Publication publique (admin uniquement)
+POST http://localhost:8787/api/access/publications
+Content-Type: application/json
+
+{"content_type":"statistic","title":"Exemple de chiffre validé","summary":"Chiffre de démonstration à remplacer par une donnée validée.","payload":{"value":12,"unit":"projets","year":2026}}
+
+### Vitrine publique (sans session)
+GET http://localhost:8787/api/public/showcase
