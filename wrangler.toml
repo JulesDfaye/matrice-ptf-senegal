@@ -15,5 +15,6 @@ run_worker_first = ["/api/*"]
     "database_id": "f5491039-0cac-4364-8969-5ebc7e7771d6"
   }
 ]
+
 [observability]
 enabled = true
