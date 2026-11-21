@@ -78,3 +78,9 @@ Les données localStorage sont propres à chaque navigateur et ordinateur : les 
 - Vérification des données depuis un second navigateur.
 
 **Important :** le dépôt fourni initialement utilisait Cloudflare D1. Cette version Vercel/Neon remplace la couche d'accès à la base et le point d'entrée API. Les migrations SQLite/Cloudflare historiques sont conservées dans `migrations/cloudflare-archive/` à titre de référence uniquement ; ne pas les exécuter sur Neon.
+
+## Comptes utilisateurs : email comme nom d'utilisateur
+
+Depuis l'espace Administrateur > Gestion des utilisateurs, saisir une adresse email et un mot de passe temporaire (10 caractères minimum). L'adresse email est automatiquement utilisée comme nom d'utilisateur et comme identifiant de connexion. À la première connexion, l'utilisateur doit définir un nouveau mot de passe. Les anciens comptes conservent leur identifiant existant ; ils peuvent également se connecter avec leur adresse email si elle est renseignée.
+
+Pour une base Neon déjà initialisée, exécuter une seule fois `migrations/neon-email-username.sql` dans le SQL Editor Neon avant le redéploiement.

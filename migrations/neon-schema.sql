@@ -55,3 +55,8 @@ INSERT INTO user_roles(user_id, role, permissions_json, active)
 VALUES ('admin-root-001','admin','{}',1)
 ON CONFLICT (user_id) DO UPDATE SET role='admin', active=1;
 CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username_ci ON users (LOWER(username));
+
+-- L'adresse email sert aussi d'identifiant de connexion pour les nouveaux comptes.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email_ci
+ON users (LOWER(email))
+WHERE email IS NOT NULL AND BTRIM(email) <> '';

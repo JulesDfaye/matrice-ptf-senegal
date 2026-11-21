@@ -162,7 +162,7 @@ app.post('/api/auth/login', async (c) => {
     return jsonError(c, 'Trop de tentatives. Réessayez dans quelques minutes.', 429);
   }
 
-  const user = await c.env.DB.prepare('SELECT * FROM users WHERE username = ? COLLATE NOCASE').bind(username).first();
+  const user = await c.env.DB.prepare('SELECT * FROM users WHERE LOWER(username) = LOWER(?) OR LOWER(email) = LOWER(?) ORDER BY CASE WHEN LOWER(username) = LOWER(?) THEN 0 ELSE 1 END LIMIT 1').bind(username, username, username).first();
   const candidateHash = user ? await hashPassword(password, user.password_salt, user.password_iterations) : await hashPassword(password, '00000000000000000000000000000000');
   const valid = Boolean(user && constantTimeEqual(candidateHash, user.password_hash));
   if (!valid) {
@@ -387,11 +387,14 @@ app.get('/api/admin/users', requireAuth, requirePasswordUpdated, async c => {
 app.post('/api/admin/users', requireAuth, requirePasswordUpdated, async c => {
   if ((await getRole(c)).role !== 'admin') return jsonError(c, 'Réservé à l’administrateur.', 403);
   let b; try { b=await c.req.json(); } catch { return jsonError(c,'Corps JSON invalide.'); }
-  const username=String(b.username||'').trim(), password=String(b.password||'');
-  if (!/^[a-zA-Z0-9._-]{3,80}$/.test(username) || password.length<10) return jsonError(c,'Identifiant invalide ou mot de passe inférieur à 10 caractères.');
+  const email=String(b.email||'').trim().toLowerCase(), password=String(b.password||'');
+  const emailValid=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length<=180;
+  if (!emailValid || password.length<10 || password.length>200) return jsonError(c,'Adresse email invalide ou mot de passe inférieur à 10 caractères.');
+  // L'adresse email devient le nom d'utilisateur unique du compte.
+  const username=email;
   const salt=randomHex(16), hash=await hashPassword(password,salt,PASSWORD_ITERATIONS), id=crypto.randomUUID();
-  try { await c.env.DB.prepare(`INSERT INTO users(id,username,password_hash,password_salt,password_iterations,first_name,last_name,email,must_change_password) VALUES(?,?,?,?,?,?,?,?,1)`).bind(id,username,hash,salt,PASSWORD_ITERATIONS,String(b.firstName||'').slice(0,100),String(b.lastName||'').slice(0,100),String(b.email||'').slice(0,180)).run(); }
-  catch { return jsonError(c,'Cet identifiant existe déjà.',409); }
+  try { await c.env.DB.prepare(`INSERT INTO users(id,username,password_hash,password_salt,password_iterations,first_name,last_name,email,must_change_password) VALUES(?,?,?,?,?,?,?,?,1)`).bind(id,username,hash,salt,PASSWORD_ITERATIONS,String(b.firstName||'').slice(0,100),String(b.lastName||'').slice(0,100),email).run(); }
+  catch (error) { console.error('Création utilisateur impossible:', error); return jsonError(c,'Cette adresse email est déjà utilisée ou le compte ne peut pas être créé.',409); }
   await c.env.DB.prepare(`INSERT INTO user_roles(user_id,role,permissions_json,active) VALUES(?,?,?,1)`).bind(id,'utilisateur',JSON.stringify(sanitizePermissions(b.permissions||{}))).run();
   await writeAudit(c.env.DB,c.get('user').id,'user_created',await getRequestIpHash(c.req.raw),{username});
   return c.json({ok:true,id,username},201);

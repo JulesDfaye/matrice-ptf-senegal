@@ -30,7 +30,7 @@
     <h2 id="authTitle">Connexion à la plateforme</h2>
     <p class="intro">Identifiez-vous pour accéder à vos partenaires, activités, matrices et indicateurs. Vos données sont enregistrées dans la base de données sécurisée.</p>
     <form id="loginForm" class="auth-form">
-      <label>Nom d’utilisateur<input id="loginUsername" name="username" autocomplete="username" required value="admin" maxlength="80"></label>
+      <label>Adresse email / nom d’utilisateur<input id="loginUsername" name="username" type="text" autocomplete="username" required value="admin" maxlength="180" placeholder="Votre adresse email"></label>
       <label>Mot de passe<input id="loginPassword" name="password" type="password" autocomplete="current-password" required maxlength="200"></label>
       <div id="loginError" class="auth-error" role="alert"></div>
       <button class="auth-submit" type="submit">Se connecter</button>
@@ -282,11 +282,11 @@
  </div>
 </section>
 <section id="utilisateurs" class="view">
- <div class="panel"><h3>Gestion des comptes et des autorisations</h3><p>Créez les comptes Utilisateur et attribuez uniquement les droits opérationnels nécessaires. Le profil Admin dispose de tous les pouvoirs.</p>
+ <div class="panel"><h3>Gestion des comptes et des autorisations</h3><p>Créez les comptes Utilisateur avec leur adresse email comme nom d’utilisateur, puis attribuez uniquement les droits opérationnels nécessaires. Le profil Admin dispose de tous les pouvoirs.</p>
   <form id="createUserForm" class="grid" onsubmit="createPlatformUser(event)">
-   <div class="field"><label>Nom d’utilisateur *</label><input name="username" required minlength="3" maxlength="80"></div>
-   <div class="field"><label>Prénom</label><input name="firstName"></div><div class="field"><label>Nom</label><input name="lastName"></div>
-   <div class="field"><label>Email</label><input name="email" type="email"></div><div class="field"><label>Mot de passe temporaire (10 caractères min.) *</label><input name="password" type="password" minlength="10" required></div>
+   <div class="field"><label>Adresse email (nom d’utilisateur) *</label><input name="email" type="email" autocomplete="email" required maxlength="180" placeholder="utilisateur@exemple.sn"></div>
+   <div class="field"><label>Prénom</label><input name="firstName" autocomplete="given-name"></div><div class="field"><label>Nom</label><input name="lastName" autocomplete="family-name"></div>
+   <div class="field"><label>Mot de passe temporaire (10 caractères min.) *</label><input name="password" type="password" autocomplete="new-password" minlength="10" maxlength="200" required></div>
    <div class="field" style="grid-column:1/-1"><label>Droits de l’utilisateur</label><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr))">
     <label><input type="checkbox" name="dashboard_read" checked> Tableau de bord</label><label><input type="checkbox" name="matrix_read"> Consulter la matrice</label><label><input type="checkbox" name="matrix_write"> Modifier la matrice</label><label><input type="checkbox" name="partners_read"> Consulter les partenaires</label><label><input type="checkbox" name="partners_write"> Modifier les partenaires</label><label><input type="checkbox" name="activities_read"> Consulter les activités</label><label><input type="checkbox" name="activities_write"> Modifier les activités</label><label><input type="checkbox" name="indicators_read"> Consulter les indicateurs</label><label><input type="checkbox" name="indicators_write"> Modifier les indicateurs</label><label><input type="checkbox" name="exports"> Exporter les données</label>
    </div></div><button class="btn primary" type="submit">Créer le compte utilisateur</button>
