@@ -8,14 +8,11 @@ directory = "./public"
 binding = "ASSETS"
 run_worker_first = ["/api/*"]
 
-"d1_databases": [
-  {
-    "binding": "DB",
-    "database_name": "matrice-pft-senegal-db",
-    "database_id": "92d7efc2-127e-4d81-93a8-6fdba485d37d"
-  }
-]
-
+[[d1_databases]]
+binding = "DB"
+database_name = "matrice-ptf-senegal"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+migrations_dir = "migrations"
 
 [observability]
 enabled = true
