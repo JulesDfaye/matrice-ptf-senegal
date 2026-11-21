@@ -57,3 +57,9 @@ Ne jamais ajouter .env.local, mot de passe ou DATABASE_URL au dépôt.
 - La migration V2 doit être exécutée dans Neon avant d'utiliser ces modules.
 - Ce ZIP n'est pas déployé automatiquement sur vos comptes GitHub/Vercel. Le test final contre votre instance Neon doit être effectué après configuration de DATABASE_URL.
 - Avant mise en production, remplacez le mot de passe temporaire administrateur par un mot de passe robuste et unique. Ne communiquez jamais les secrets dans un dépôt Git.
+
+MISE À JOUR — PHOTO DE PROFIL UTILISATEUR
+1. Dans Neon SQL Editor, exécuter une seule fois le fichier migrations/neon-profile-avatar.sql.
+2. Déployer les fichiers du projet sur GitHub puis Vercel.
+3. Se connecter, ouvrir Paramètres > Mon profil, choisir une photo JPG, PNG ou WebP, puis cliquer sur « Enregistrer les informations utilisateur ».
+La photo est redimensionnée et compressée dans le navigateur puis enregistrée dans la colonne users.avatar_url. Taille maximale acceptée après compression : environ 500 Ko. Aucun service de stockage externe n'est requis.

@@ -81,7 +81,7 @@ function safeUser(row) {
     mustChangePassword: Boolean(row.must_change_password),
     profile: {
       firstName: row.first_name || '', lastName: row.last_name || '', ministry: row.ministry || '',
-      department: row.department || '', position: row.position || '', phone: row.phone || '', email: row.email || ''
+      department: row.department || '', position: row.position || '', phone: row.phone || '', email: row.email || '', avatarUrl: row.avatar_url || ''
     }
   };
 }
@@ -99,7 +99,7 @@ async function requireAuth(c, next) {
   if (!token) return jsonError(c, 'Authentification requise.', 401);
   const tokenHash = await sha256Hex(token);
   const row = await c.env.DB.prepare(`
-    SELECT u.id, u.username, u.first_name, u.last_name, u.ministry, u.department, u.position, u.phone, u.email, u.must_change_password,
+    SELECT u.id, u.username, u.first_name, u.last_name, u.ministry, u.department, u.position, u.phone, u.email, u.avatar_url, u.must_change_password,
       COALESCE(r.role, CASE WHEN u.id='admin-root-001' THEN 'admin' ELSE 'utilisateur' END) AS role,
       COALESCE(r.permissions_json,'{}') AS permissions_json, COALESCE(r.active,1) AS role_active
     FROM sessions s JOIN users u ON u.id = s.user_id LEFT JOIN user_roles r ON r.user_id=u.id
@@ -208,11 +208,13 @@ app.put('/api/profile', requireAuth, requirePasswordUpdated, async (c) => {
     firstName: String(body.firstName || '').trim().slice(0, 100), lastName: String(body.lastName || '').trim().slice(0, 100),
     ministry: String(body.ministry || '').trim().slice(0, 180), department: String(body.department || '').trim().slice(0, 180),
     position: String(body.position || '').trim().slice(0, 180), phone: String(body.phone || '').trim().slice(0, 50),
-    email: String(body.email || '').trim().slice(0, 180)
+    email: String(body.email || '').trim().slice(0, 180),
+    avatarUrl: String(body.avatarUrl || '').trim()
   };
+  if (clean.avatarUrl && (!/^data:image\/(jpeg|png|webp);base64,/.test(clean.avatarUrl) || clean.avatarUrl.length > 750000)) return jsonError(c, 'Photo invalide ou trop volumineuse (maximum 500 Ko après compression).');
   try {
-    await c.env.DB.prepare(`UPDATE users SET username=?, first_name=?, last_name=?, ministry=?, department=?, position=?, phone=?, email=?, updated_at=datetime('now') WHERE id=?`)
-      .bind(username, clean.firstName, clean.lastName, clean.ministry, clean.department, clean.position, clean.phone, clean.email, c.get('user').id).run();
+    await c.env.DB.prepare(`UPDATE users SET username=?, first_name=?, last_name=?, ministry=?, department=?, position=?, phone=?, email=?, avatar_url=?, updated_at=datetime('now') WHERE id=?`)
+      .bind(username, clean.firstName, clean.lastName, clean.ministry, clean.department, clean.position, clean.phone, clean.email, clean.avatarUrl || null, c.get('user').id).run();
   } catch (error) {
     if (String(error).toLowerCase().includes('unique')) return jsonError(c, 'Ce nom d’utilisateur est déjà utilisé.', 409);
     throw error;

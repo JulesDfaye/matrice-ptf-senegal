@@ -142,3 +142,8 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}.app{display:fle
 
 /* Collaboration V2 */
 .nav .badge{margin-left:5px;padding:2px 6px;font-size:10px;background:#e0f2fe;color:#075985;border-radius:20px}.view .panel form.grid{margin-top:14px}.view .panel textarea{min-height:90px}.view .tablewrap{overflow:auto}.view table{width:100%;border-collapse:collapse}.view th,.view td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;font-size:12px}.view th{background:#f4f7fa}
+
+/* Identité de l'utilisateur connecté dans l'en-tête de l'espace de travail */
+.workspace-user-badge{display:flex;align-items:center;gap:9px;padding:6px 12px;border:1px solid var(--line,#dce5e1);border-radius:12px;background:#fff;min-width:170px;max-width:260px;text-align:left}.workspace-user-avatar{display:grid;place-items:center;width:34px;height:34px;flex:0 0 34px;border-radius:50%;background:#e8f4ed;color:#087a45;font-size:19px}.workspace-user-details{display:flex;flex-direction:column;min-width:0;line-height:1.25}.workspace-user-details strong{font-size:13px;color:#173b2b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.workspace-user-details small{font-size:11px;color:#66756d;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px}@media(max-width:760px){.workspace-user-badge{min-width:0;max-width:190px;padding:5px 8px}.workspace-user-avatar{width:30px;height:30px;flex-basis:30px}.workspace-user-details small{max-width:130px}}
+
+.profile-photo-preview{width:76px;height:76px;object-fit:cover;border-radius:50%;border:2px solid #dce5e1}.workspace-user-avatar{object-fit:cover;overflow:hidden}

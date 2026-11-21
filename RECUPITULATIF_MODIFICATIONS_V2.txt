@@ -1,0 +1,26 @@
+MATRICE PARTENAIRE ET PTF SENEGAL - VERSION PROFESSIONNELLE V2
+
+Cette archive consolide les modifications successives suivantes :
+1. Vitrine visiteurs : remplacement du bouton « Accéder à la plateforme » par « Retour à l’accueil » avec lien vers /.
+2. Accueil : messages de bienvenue choisis aléatoirement à chaque ouverture/retour sur l’accueil, sans répétition immédiate.
+3. Salutation horaire selon le fuseau Africa/Dakar : Bonjour (05h-11h59), Bon après-midi (12h-17h59), Bonsoir (18h-04h59).
+4. Personnalisation du message avec le prénom de l’utilisateur connecté.
+5. En-tête de l’espace de travail : prénom/nom et fonction de l’utilisateur connecté.
+6. Photo de profil : ajout, prévisualisation, remplacement et suppression ; affichage dans l’en-tête ; prise en charge de JPG/JPEG, PNG et WebP.
+7. Migration Neon du champ avatar : migrations/neon-profile-avatar.sql.
+
+DEPLOIEMENT
+- Ouvrir le dossier du projet dans VS Code.
+- Installer les dépendances : npm install
+- Vérifier : npm run check
+- Exécuter une seule fois dans Neon SQL Editor la migration migrations/neon-profile-avatar.sql si elle n'a pas déjà été appliquée.
+- Vérifier que DATABASE_URL est définie dans les variables d'environnement Vercel.
+- Envoyer le projet sur GitHub puis laisser Vercel déployer.
+
+Commandes Git habituelles :
+git add .
+git commit -m "Consolidation V2 accueil et profils utilisateurs"
+git push origin main
+
+IMPORTANT
+Cette archive est un paquet de fichiers du projet. Le déploiement effectif et la connexion à la base Neon doivent être vérifiés dans votre environnement GitHub/Vercel/Neon. Ne publiez jamais DATABASE_URL dans GitHub.

@@ -64,7 +64,7 @@
 </aside>
 
 <main class="main home-active">
-<div class="top"><h2 id="title">Tableau de bord</h2><div class="actions"><span id="cloudSyncStatus" class="cloud-sync-status">Connexion locale</span>
+<div class="top"><h2 id="title">Tableau de bord</h2><div class="actions"><div id="workspaceUserBadge" class="workspace-user-badge" aria-live="polite" hidden><img id="workspaceUserAvatar" class="workspace-user-avatar" alt="Photo de profil" hidden><span id="workspaceUserAvatarFallback" class="workspace-user-avatar" aria-hidden="true">♙</span><span class="workspace-user-details"><strong id="workspaceUserName">Utilisateur</strong><small id="workspaceUserPosition">Fonction non renseignée</small></span></div><span id="cloudSyncStatus" class="cloud-sync-status">Connexion locale</span>
  <button class="btn light" onclick="exportExcel()">Exporter Excel</button><button class="btn teal" onclick="window.print()">Imprimer</button>
 </div></div>
 
@@ -271,6 +271,7 @@
    <div class="field"><label>Téléphone</label><input name="phone" placeholder="Numéro de téléphone"></div>
    <div class="field"><label>Email</label><input type="email" name="email" placeholder="Adresse email"></div>
    <div class="field"><label>Nom d'utilisateur</label><input name="username" value="admin" placeholder="Nom d'utilisateur"></div>
+   <div class="field" style="grid-column:1/-1"><label for="profilePhotoInput">Photo de profil</label><div class="row" style="align-items:center;gap:14px"><img id="profilePhotoPreview" class="profile-photo-preview" alt="Aperçu de la photo de profil" hidden><input id="profilePhotoInput" type="file" accept="image/jpeg,image/png,image/webp"><button class="btn light" type="button" onclick="removeProfilePhoto()">Retirer la photo</button></div><small>Formats JPG, PNG ou WebP. L’image est redimensionnée avant enregistrement.</small></div>
    <div class="field"><label>Mot de passe actuel (pour changement)</label><input type="password" name="currentPassword" autocomplete="current-password" placeholder="Mot de passe actuel"></div>
    <div class="field"><label>Nouveau mot de passe</label><input type="password" name="newPassword" autocomplete="new-password" minlength="10" placeholder="10 caractères minimum"></div>
    <div class="row" style="grid-column:1/-1"><button class="btn primary">Enregistrer les informations utilisateur</button><button type="button" class="btn light" onclick="resetSettingsInfo()">Réinitialiser</button></div>

@@ -115,7 +115,7 @@ async function bootstrapCloudAccount(){
   const session=await response.json();apiAuthenticated=true;applyRoleUI(session.user);
   if(session.user?.mustChangePassword){showForcedPasswordScreen();return;}
   await loadStateFromCloud();applyRoleUI(session.user);
-  if(session.user?.profile){Object.assign(data.settings,{prenom:session.user.profile.firstName||'',nom:session.user.profile.lastName||'',ministere:session.user.profile.ministry||'',service:session.user.profile.department||'',poste:session.user.profile.position||'',phone:session.user.profile.phone||'',email:session.user.profile.email||'',username:session.user.username||'admin'});localStorage.setItem(KEY,JSON.stringify(data));applyPlatformSettings();}
+  if(session.user?.profile){Object.assign(data.settings,{prenom:session.user.profile.firstName||'',nom:session.user.profile.lastName||'',ministere:session.user.profile.ministry||'',service:session.user.profile.department||'',poste:session.user.profile.position||'',phone:session.user.profile.phone||'',email:session.user.profile.email||'',avatarUrl:session.user.profile.avatarUrl||'',username:session.user.username||'admin'});localStorage.setItem(KEY,JSON.stringify(data));applyPlatformSettings();}
   showApplication();
  }catch(error){
   // Le fichier reste consultable en mode local (file:// ou serveur statique sans /api).
@@ -125,7 +125,7 @@ async function bootstrapCloudAccount(){
 }
 async function handleLogin(event){
  event.preventDefault();const form=event.currentTarget,btn=form.querySelector('button[type="submit"]');btn.disabled=true;btn.textContent='Connexion…';
- try{await apiRequest('/api/auth/login',{method:'POST',body:JSON.stringify({username:form.username.value.trim(),password:form.password.value})});apiAuthenticated=true;const me=await apiRequest('/api/auth/me');if(selectedPlatformProfile && me.user?.role!==selectedPlatformProfile){await apiRequest('/api/auth/logout',{method:'POST'}).catch(()=>{});apiAuthenticated=false;throw new Error(selectedPlatformProfile==='admin'?'Ce compte ne possède pas le profil Administrateur. Choisissez le profil Utilisateur si nécessaire.':'Ce compte ne possède pas le profil Utilisateur. Choisissez le profil Administrateur si nécessaire.');}applyRoleUI(me.user);if(me.user?.mustChangePassword){document.getElementById('forceCurrentPassword').value=form.password.value;form.reset();showForcedPasswordScreen();return;}await loadStateFromCloud();applyRoleUI(me.user);if(me.user?.profile)Object.assign(data.settings,{prenom:me.user.profile.firstName||'',nom:me.user.profile.lastName||'',ministere:me.user.profile.ministry||'',service:me.user.profile.department||'',poste:me.user.profile.position||'',phone:me.user.profile.phone||'',email:me.user.profile.email||'',username:me.user.username||'admin'});localStorage.setItem(KEY,JSON.stringify(data));applyPlatformSettings();showApplication();showView('dashboard');selectedPlatformProfile=null;form.reset();document.getElementById('loginUsername').value=data.settings.username||'admin';}
+ try{await apiRequest('/api/auth/login',{method:'POST',body:JSON.stringify({username:form.username.value.trim(),password:form.password.value})});apiAuthenticated=true;const me=await apiRequest('/api/auth/me');if(selectedPlatformProfile && me.user?.role!==selectedPlatformProfile){await apiRequest('/api/auth/logout',{method:'POST'}).catch(()=>{});apiAuthenticated=false;throw new Error(selectedPlatformProfile==='admin'?'Ce compte ne possède pas le profil Administrateur. Choisissez le profil Utilisateur si nécessaire.':'Ce compte ne possède pas le profil Utilisateur. Choisissez le profil Administrateur si nécessaire.');}applyRoleUI(me.user);if(me.user?.mustChangePassword){document.getElementById('forceCurrentPassword').value=form.password.value;form.reset();showForcedPasswordScreen();return;}await loadStateFromCloud();applyRoleUI(me.user);if(me.user?.profile)Object.assign(data.settings,{prenom:me.user.profile.firstName||'',nom:me.user.profile.lastName||'',ministere:me.user.profile.ministry||'',service:me.user.profile.department||'',poste:me.user.profile.position||'',phone:me.user.profile.phone||'',email:me.user.profile.email||'',avatarUrl:me.user.profile.avatarUrl||'',username:me.user.username||'admin'});localStorage.setItem(KEY,JSON.stringify(data));applyPlatformSettings();showApplication();showView('dashboard');selectedPlatformProfile=null;form.reset();document.getElementById('loginUsername').value=data.settings.username||'admin';}
  catch(error){const box=document.getElementById('loginError');box.textContent=error.message||'Identifiants incorrects.';box.style.display='block';}
  finally{btn.disabled=false;btn.textContent='Se connecter';}
 }
@@ -148,6 +148,18 @@ async function loadPublications(){const box=document.getElementById('publication
 async function publishShowcaseItem(event){event.preventDefault();const f=event.currentTarget;try{await apiRequest('/api/admin/publications',{method:'POST',body:JSON.stringify({content_type:f.content_type.value,title:f.title.value,summary:f.summary.value,payload:{year:f.year.value?Number(f.year.value):undefined,value:f.value.value?Number(f.value.value):undefined,unit:f.unit.value}})});f.reset();await loadPublications();alert('Information publiée sur la vitrine publique.');}catch(e){alert(e.message||'Publication impossible.');}}
 async function togglePublication(id,is_published){try{await apiRequest('/api/admin/publications/'+encodeURIComponent(id),{method:'PATCH',body:JSON.stringify({is_published})});await loadPublications();}catch(e){alert(e.message||'Modification impossible.');}}
 
+async function fileToProfilePhoto(file){
+ if(!file || !['image/jpeg','image/png','image/webp'].includes(file.type)) throw new Error('Choisissez une image JPG, PNG ou WebP.');
+ if(file.size>8*1024*1024) throw new Error('La photo originale ne doit pas dépasser 8 Mo.');
+ const source=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('Lecture de la photo impossible.'));reader.readAsDataURL(file);});
+ const img=await new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(new Error('Image illisible.'));image.src=source;});
+ const canvas=document.createElement('canvas');const scale=Math.min(1,512/Math.max(img.width,img.height));canvas.width=Math.round(img.width*scale);canvas.height=Math.round(img.height*scale);canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+ const result=canvas.toDataURL('image/jpeg',0.78);if(result.length>750000)throw new Error('Cette photo reste trop volumineuse après compression. Choisissez une autre image.');return result;
+}
+function previewProfilePhoto(value){const preview=document.getElementById('profilePhotoPreview');if(!preview)return;preview.src=value||'';preview.hidden=!value;}
+function removeProfilePhoto(){data.settings.avatarUrl='';const input=document.getElementById('profilePhotoInput');if(input)input.value='';previewProfilePhoto('');applyPlatformSettings();}
+document.addEventListener('change',async event=>{if(event.target?.id!=='profilePhotoInput')return;try{const photo=await fileToProfilePhoto(event.target.files?.[0]);data.settings.avatarUrl=photo;previewProfilePhoto(photo);applyPlatformSettings();}catch(error){event.target.value='';alert(error.message||'Photo invalide.');}});
+
 async function saveUserProfile(form){
  const values=Object.fromEntries(new FormData(form).entries());
  const currentPassword=String(values.currentPassword||'');const newPassword=String(values.newPassword||'');
@@ -158,7 +170,7 @@ async function saveUserProfile(form){
  Object.assign(data.settings,values);delete data.settings.password;
  save();applyPlatformSettings();
  if(apiAuthenticated){
-  await apiRequest('/api/profile',{method:'PUT',body:JSON.stringify({username:values.username,firstName:values.prenom,lastName:values.nom,ministry:values.ministere,department:values.service,position:values.poste,phone:values.phone,email:values.email})});
+  await apiRequest('/api/profile',{method:'PUT',body:JSON.stringify({username:values.username,firstName:values.prenom,lastName:values.nom,ministry:values.ministere,department:values.service,position:values.poste,phone:values.phone,email:values.email,avatarUrl:data.settings.avatarUrl||''})});
   if(newPassword){clearTimeout(cloudSyncTimer);await syncStateToCloud();await apiRequest('/api/auth/change-password',{method:'POST',body:JSON.stringify({currentPassword,newPassword})});apiAuthenticated=false;form.elements.currentPassword.value='';form.elements.newPassword.value='';showAuthScreen('Mot de passe modifié. Reconnectez-vous avec votre nouveau mot de passe.');return;}
   alert('Les informations utilisateur ont été enregistrées dans la base de données sécurisée.');
  }else{
@@ -171,7 +183,42 @@ async function saveUserProfile(form){
 function save(){delete data.settings.password;delete data.settings.currentPassword;delete data.settings.newPassword;localStorage.setItem(KEY,JSON.stringify(data));updateStats();scheduleCloudSync();}
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
 function escAttr(v){return esc(v).replace(/`/g,'&#96;');}
-function showView(id,btn){const target=document.getElementById(id);if(!target)return;document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));target.classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));const navBtn=btn||document.querySelector(`.nav button[data-menu-id="${id}"]`);if(navBtn)navBtn.classList.add('active');document.querySelector('.main')?.classList.toggle('home-active',id==='accueil');document.getElementById('appRoot')?.classList.toggle('home-landing',id==='accueil');const t={tasks:'Gestion des tâches',messages:'Messagerie interne',agenda:'Agenda professionnel',notifications:'Notifications',accueil:'Accueil',dashboard:'Tableau de bord',matrice:'Matrice des partenaires',activites:'Activités',partenaires:'Partenaires',indicateurs:'Indicateurs',recherche:'Recherche globale',sauvegarde:'Sauvegarde / restauration',parametres:'Paramètres'};document.getElementById('title').textContent=t[id]||id;if(id==='dashboard'){drawCharts();loadCollabOverview();}if(id==='tasks')loadCollabTasks();if(id==='messages')loadInternalMessages();if(id==='agenda')loadCalendarEvents();if(id==='notifications')loadCollabNotifications();if(id==='activites')renderActivites();if(id==='partenaires')renderPartenairesFiches();if(id==='indicateurs')renderIndicateurs();if(id==='parametres'){renderSettings();if(currentAccess.role==='admin'){loadPlatformUsers();loadContactMessages();}}if(id==='utilisateurs'){loadPlatformUsers();loadPublications();}if(id==='matrice'){renderPartners();renderMatrix()}}
+const HOME_WELCOME_MESSAGES = [
+ 'Nous sommes heureux de vous accueillir. Que cette journée soit placée sous le signe du partage, de la réussite et de nouvelles opportunités.',
+ 'Bienvenue sur votre espace de collaboration. Ensemble, faisons avancer les partenariats et les actions de développement.',
+ 'Chaque partenariat ouvre de nouvelles perspectives. Nous vous souhaitons une excellente visite et un travail fructueux.',
+ 'Ensemble, transformons les engagements en résultats concrets au service du développement du Sénégal.',
+ 'La réussite collective commence par le partage de l’information et la qualité de la collaboration. Excellente journée !',
+ 'Bienvenue ! Que votre passage sur la plateforme soit riche en échanges, en idées et en avancées positives.',
+ 'Un objectif partagé, des partenaires engagés et des actions coordonnées : construisons ensemble des résultats durables.',
+ 'Nous vous souhaitons la bienvenue. Que cette nouvelle visite soit l’occasion de découvrir, partager et progresser.',
+ 'La coopération est une force. Merci de contribuer au suivi et à la valorisation des partenariats au Sénégal.',
+ 'Une nouvelle journée, de nouvelles opportunités de collaboration et de progrès. Heureux de vous retrouver !',
+ 'Bienvenue dans votre espace de travail. Avançons avec méthode, transparence et esprit d’équipe.',
+ 'Ensemble, donnons plus de visibilité aux contributions et plus d’impact aux actions de développement.'
+];
+function getLocalGreeting(){
+ // Utilise l'heure locale de l'appareil de l'utilisateur.
+ const hour=Number(new Intl.DateTimeFormat('fr-FR',{hour:'2-digit',hourCycle:'h23',timeZone:'Africa/Dakar'}).format(new Date()));
+ if(hour>=5 && hour<12)return 'Bonjour';
+ if(hour>=12 && hour<18)return 'Bon après-midi';
+ return 'Bonsoir';
+}
+function refreshHomeWelcomeMessage(){
+ const el=document.querySelector('.home-welcome-message');
+ if(!el)return;
+ const storageKey='matrice_ptf_last_welcome_message';
+ let previous=''; try{previous=sessionStorage.getItem(storageKey)||'';}catch(_){}
+ const choices=HOME_WELCOME_MESSAGES.map((_,i)=>i).filter(i=>String(i)!==previous);
+ const index=choices[Math.floor(Math.random()*choices.length)];
+ el.textContent=HOME_WELCOME_MESSAGES[index];
+ const greeting=document.querySelector('.home-greeting');
+ if(greeting)greeting.innerHTML='<span class="home-greeting-star" aria-hidden="true">★</span> '+getLocalGreeting()+' et bienvenue sur votre plateforme !';
+ try{sessionStorage.setItem(storageKey,String(index));}catch(_){}
+}
+refreshHomeWelcomeMessage();
+
+function showView(id,btn){const target=document.getElementById(id);if(!target)return;if(id==='accueil')refreshHomeWelcomeMessage();document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));target.classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));const navBtn=btn||document.querySelector(`.nav button[data-menu-id="${id}"]`);if(navBtn)navBtn.classList.add('active');document.querySelector('.main')?.classList.toggle('home-active',id==='accueil');document.getElementById('appRoot')?.classList.toggle('home-landing',id==='accueil');const t={tasks:'Gestion des tâches',messages:'Messagerie interne',agenda:'Agenda professionnel',notifications:'Notifications',accueil:'Accueil',dashboard:'Tableau de bord',matrice:'Matrice des partenaires',activites:'Activités',partenaires:'Partenaires',indicateurs:'Indicateurs',recherche:'Recherche globale',sauvegarde:'Sauvegarde / restauration',parametres:'Paramètres'};document.getElementById('title').textContent=t[id]||id;if(id==='dashboard'){drawCharts();loadCollabOverview();}if(id==='tasks')loadCollabTasks();if(id==='messages')loadInternalMessages();if(id==='agenda')loadCalendarEvents();if(id==='notifications')loadCollabNotifications();if(id==='activites')renderActivites();if(id==='partenaires')renderPartenairesFiches();if(id==='indicateurs')renderIndicateurs();if(id==='parametres'){renderSettings();if(currentAccess.role==='admin'){loadPlatformUsers();loadContactMessages();}}if(id==='utilisateurs'){loadPlatformUsers();loadPublications();}if(id==='matrice'){renderPartners();renderMatrix()}}
 function goToDashboard(){const app=document.getElementById('appRoot'),chooser=document.getElementById('profileChooser'),auth=document.getElementById('authScreen');if(app)app.hidden=true;if(auth)auth.hidden=true;if(chooser)chooser.hidden=false;}
 function toggleCustomType(){let s=document.getElementById('partnerType');document.getElementById('customTypeWrap').style.display=s.value==='__custom__'?'flex':'none'}
 function addPartner(){let n=document.getElementById('partnerName').value.trim();if(!n)return alert('Saisissez le nom du partenaire.');let s=document.getElementById('partnerType'),type=s.value==='__custom__'?document.getElementById('customType').value.trim():s.value;if(!type)return alert('Veuillez saisir le nouveau type.');if(data.partners.some(p=>p.name.toLowerCase()===n.toLowerCase()))return alert('Ce partenaire existe déjà.');let values={};rubriques.forEach(r=>values[r]={interet:'',influence:'',contribution:''});data.partners.push({id:Date.now(),name:n,type,values});save();document.getElementById('partnerName').value='';document.getElementById('customType').value='';s.value='Public';toggleCustomType();renderPartners();document.getElementById('partnerSelect').value=data.partners.at(-1).id;renderMatrix();}
@@ -202,6 +249,18 @@ function applyPlatformSettings(){
  document.querySelector('.brand h1').innerHTML=FIXED_PLATFORM_NAME;
  document.querySelector('.brand p').textContent=FIXED_SUBTITLE;
  const displayName=[s.prenom,s.nom].filter(Boolean).join(' ')||'Utilisateur';
+ const userBadge=document.getElementById('workspaceUserBadge');
+ const userName=document.getElementById('workspaceUserName');
+ const userPosition=document.getElementById('workspaceUserPosition');
+ if(userBadge&&userName&&userPosition){
+  userName.textContent=displayName;
+  userPosition.textContent=String(s.poste||'Fonction non renseignée').trim();
+  const avatar=document.getElementById('workspaceUserAvatar'),fallback=document.getElementById('workspaceUserAvatarFallback');
+  if(avatar&&fallback){avatar.src=s.avatarUrl||'';avatar.hidden=!s.avatarUrl;fallback.hidden=!!s.avatarUrl;}
+  userBadge.hidden=!apiAuthenticated;
+  userBadge.title=displayName+' — '+userPosition.textContent;
+  previewProfilePhoto(s.avatarUrl||'');
+ }
  document.querySelector('.sidebarBottom').innerHTML='<div class="copyright">'+esc(displayName)+'</div>'+FIXED_FOOTER+'<div id="cloudSyncStatus" class="cloud-sync-status" style="color:#d7eef0;margin-top:8px">Connexion…</div><button class="logout-btn" type="button" onclick="logoutUser()">Se déconnecter</button>';
  document.title=FIXED_PLATFORM_NAME;
 }

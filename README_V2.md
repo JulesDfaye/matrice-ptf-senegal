@@ -24,3 +24,6 @@ Voir `DEPLOIEMENT_V2_GITHUB_VSCODE_VERCEL.txt` pour la procédure complète. La 
 `npm run dev`
 
 Le code est préparé pour le déploiement mais le test réel contre le projet Neon et le compte Vercel de l'utilisateur reste à effectuer après configuration des secrets et exécution des migrations.
+
+### Photo de profil utilisateur
+Exécuter `migrations/neon-profile-avatar.sql` dans Neon avant le déploiement de cette évolution. Chaque utilisateur peut choisir sa photo dans Paramètres > Mon profil. L'image est compressée côté navigateur et stockée dans `users.avatar_url`.
