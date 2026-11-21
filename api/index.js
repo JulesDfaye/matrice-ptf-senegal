@@ -468,6 +468,75 @@ app.patch('/api/admin/publications/:id', requireAuth, requirePasswordUpdated, as
   await c.env.DB.prepare(`UPDATE public_publications SET is_published=?,updated_at=datetime('now') WHERE id=?`).bind(published,c.req.param('id')).run();return c.json({ok:true});
 });
 
+
+// --- Collaboration professionnelle V2 ---
+async function collaborationAdmin(c) {
+  const access = await getRole(c);
+  return access.role === 'admin';
+}
+function validText(value, max=3000) { return String(value ?? '').trim().slice(0, max); }
+async function notifyUser(db, userId, type, title, body, link='') {
+  if (!userId) return;
+  await db.prepare('INSERT INTO notifications (user_id, type, title, body, link) VALUES (?, ?, ?, ?, ?)')
+    .bind(userId, type, title, body, link).run();
+}
+
+app.get('/api/collaboration/overview', requireAuth, requirePasswordUpdated, async c => {
+  const db=c.env.DB, user=c.get('user'), admin=await collaborationAdmin(c);
+  const tasks=admin
+    ? await db.prepare("SELECT status, COUNT(*)::int AS count FROM tasks GROUP BY status").all()
+    : await db.prepare("SELECT status, COUNT(*)::int AS count FROM tasks WHERE assigned_to=? OR created_by=? GROUP BY status").bind(user.id,user.id).all();
+  const messages=await db.prepare('SELECT COUNT(*)::int AS count FROM internal_messages WHERE recipient_id=? AND read_at IS NULL').bind(user.id).first();
+  const notifications=await db.prepare('SELECT COUNT(*)::int AS count FROM notifications WHERE user_id=? AND read_at IS NULL').bind(user.id).first();
+  const pending=admin?await db.prepare("SELECT COUNT(*)::int AS count FROM tasks WHERE status='a_valider'").first():{count:0};
+  return c.json({ok:true,tasks:tasks.results||[],unreadMessages:messages?.count||0,unreadNotifications:notifications?.count||0,pendingValidation:pending?.count||0});
+});
+
+app.get('/api/collaboration/tasks', requireAuth, requirePasswordUpdated, async c=>{
+ const db=c.env.DB,user=c.get('user'),admin=await collaborationAdmin(c);
+ const result=admin?await db.prepare('SELECT t.*, u.first_name AS assignee_first_name, u.last_name AS assignee_last_name FROM tasks t LEFT JOIN users u ON u.id=t.assigned_to ORDER BY t.created_at DESC LIMIT 300').all():await db.prepare('SELECT t.*, u.first_name AS assignee_first_name, u.last_name AS assignee_last_name FROM tasks t LEFT JOIN users u ON u.id=t.assigned_to WHERE t.assigned_to=? OR t.created_by=? ORDER BY t.created_at DESC LIMIT 300').bind(user.id,user.id).all();
+ return c.json({ok:true,tasks:result.results||[]});
+});
+app.post('/api/collaboration/tasks', requireAuth, requirePasswordUpdated, async c=>{
+ const db=c.env.DB,user=c.get('user'),admin=await collaborationAdmin(c); let b;try{b=await c.req.json()}catch{return jsonError(c,'Données invalides.');}
+ const title=validText(b.title,180), assignee=validText(b.assigned_to,100); if(!title)return jsonError(c,'Le titre de la tâche est obligatoire.');
+ if(!admin && assignee && assignee!==user.id)return jsonError(c,'Seul un administrateur peut attribuer une tâche à un autre utilisateur.',403);
+ const assigned=admin?(assignee||user.id):user.id;
+ const row=await db.prepare('INSERT INTO tasks (title, description, assigned_to, created_by, activity_ref, priority, status, start_date, due_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *')
+ .bind(title,validText(b.description),assigned,user.id,validText(b.activity_ref,180),['basse','normale','haute','urgente'].includes(b.priority)?b.priority:'normale','a_faire',b.start_date||null,b.due_date||null).first();
+ await notifyUser(db,assigned,'task_assigned','Nouvelle tâche',`Une tâche vous a été attribuée : ${title}`,'tasks');
+ return c.json({ok:true,task:row},201);
+});
+app.patch('/api/collaboration/tasks/:id', requireAuth, requirePasswordUpdated, async c=>{
+ const db=c.env.DB,user=c.get('user'),admin=await collaborationAdmin(c),id=c.req.param('id');let b;try{b=await c.req.json()}catch{return jsonError(c,'Données invalides.');}
+ const task=await db.prepare('SELECT * FROM tasks WHERE id=?').bind(id).first();if(!task)return jsonError(c,'Tâche introuvable.',404);
+ if(!admin && task.assigned_to!==user.id && task.created_by!==user.id)return jsonError(c,'Accès interdit.',403);
+ let status=task.status;
+ if(b.action==='submit'){if(task.assigned_to!==user.id&&!admin)return jsonError(c,'Seul le responsable peut soumettre le travail.',403);status='a_valider';}
+ else if(b.action==='validate'){if(!admin)return jsonError(c,'Validation réservée à l’administrateur.',403);status='termine';}
+ else if(b.action==='reject'){if(!admin)return jsonError(c,'Action réservée à l’administrateur.',403);status='en_cours';}
+ else if(b.status && ['a_faire','en_cours','en_attente'].includes(b.status)){if(admin||task.assigned_to===user.id)status=b.status;else return jsonError(c,'Accès interdit.',403);}
+ const comment=validText(b.comment,2000);
+ const updated=await db.prepare("UPDATE tasks SET status=?, updated_at=NOW(), submitted_at=CASE WHEN ?='a_valider' THEN NOW() ELSE submitted_at END, validated_at=CASE WHEN ?='termine' THEN NOW() ELSE validated_at END WHERE id=? RETURNING *").bind(status,status,status,id).first();
+ if(comment)await db.prepare('INSERT INTO task_comments (task_id,user_id,comment) VALUES (?,?,?)').bind(id,user.id,comment).run();
+ const target=admin?task.assigned_to:task.created_by;
+ if(target && target!==user.id)await notifyUser(db,target,'task_update','Mise à jour d’une tâche',`La tâche « ${task.title} » est maintenant : ${status}.`,'tasks');
+ return c.json({ok:true,task:updated});
+});
+app.get('/api/collaboration/tasks/:id/comments',requireAuth,requirePasswordUpdated,async c=>{
+ const db=c.env.DB,user=c.get('user'),admin=await collaborationAdmin(c),id=c.req.param('id');const task=await db.prepare('SELECT * FROM tasks WHERE id=?').bind(id).first();if(!task)return jsonError(c,'Tâche introuvable.',404);if(!admin&&task.assigned_to!==user.id&&task.created_by!==user.id)return jsonError(c,'Accès interdit.',403);
+ const r=await db.prepare('SELECT tc.*,u.first_name,u.last_name FROM task_comments tc LEFT JOIN users u ON u.id=tc.user_id WHERE tc.task_id=? ORDER BY tc.created_at').bind(id).all();return c.json({ok:true,comments:r.results||[]});
+});
+
+app.get('/api/collaboration/messages',requireAuth,requirePasswordUpdated,async c=>{const db=c.env.DB,u=c.get('user');const r=await db.prepare('SELECT m.*,s.first_name AS sender_first_name,s.last_name AS sender_last_name,r.first_name AS recipient_first_name,r.last_name AS recipient_last_name FROM internal_messages m LEFT JOIN users s ON s.id=m.sender_id LEFT JOIN users r ON r.id=m.recipient_id WHERE m.sender_id=? OR m.recipient_id=? ORDER BY m.created_at DESC LIMIT 300').bind(u.id,u.id).all();return c.json({ok:true,messages:r.results||[]});});
+app.post('/api/collaboration/messages',requireAuth,requirePasswordUpdated,async c=>{const db=c.env.DB,u=c.get('user');let b;try{b=await c.req.json()}catch{return jsonError(c,'Données invalides.');}const recipient=validText(b.recipient_id,100),subject=validText(b.subject,180),body=validText(b.body,5000);if(!recipient||!subject||!body)return jsonError(c,'Destinataire, objet et message sont obligatoires.');const exists=await db.prepare('SELECT id FROM users WHERE id=?').bind(recipient).first();if(!exists)return jsonError(c,'Destinataire introuvable.');const row=await db.prepare('INSERT INTO internal_messages (sender_id,recipient_id,subject,body) VALUES (?,?,?,?) RETURNING *').bind(u.id,recipient,subject,body).first();await notifyUser(db,recipient,'message','Nouveau message interne',`Vous avez reçu : ${subject}`,'messages');return c.json({ok:true,message:row},201);});
+app.patch('/api/collaboration/messages/:id/read',requireAuth,requirePasswordUpdated,async c=>{const db=c.env.DB,u=c.get('user');const r=await db.prepare('UPDATE internal_messages SET read_at=NOW() WHERE id=? AND recipient_id=? RETURNING id').bind(c.req.param('id'),u.id).first();if(!r)return jsonError(c,'Message introuvable.',404);return c.json({ok:true});});
+
+app.get('/api/collaboration/events',requireAuth,requirePasswordUpdated,async c=>{const db=c.env.DB,u=c.get('user'),admin=await collaborationAdmin(c);const r=admin?await db.prepare('SELECT * FROM calendar_events ORDER BY start_at LIMIT 300').all():await db.prepare("SELECT * FROM calendar_events WHERE visibility='all' OR owner_id=? ORDER BY start_at LIMIT 300").bind(u.id).all();return c.json({ok:true,events:r.results||[]});});
+app.post('/api/collaboration/events',requireAuth,requirePasswordUpdated,async c=>{const db=c.env.DB,u=c.get('user');if(!(await collaborationAdmin(c)))return jsonError(c,'Création réservée à l’administrateur.',403);let b;try{b=await c.req.json()}catch{return jsonError(c,'Données invalides.');}const title=validText(b.title,180);if(!title||!b.start_at||!b.end_at)return jsonError(c,'Titre, début et fin sont obligatoires.');const r=await db.prepare('INSERT INTO calendar_events (title,description,start_at,end_at,location,created_by,owner_id,visibility) VALUES (?,?,?,?,?,?,?,?) RETURNING *').bind(title,validText(b.description),b.start_at,b.end_at,validText(b.location,250),u.id,b.owner_id||null,b.visibility==='private'?'private':'all').first();return c.json({ok:true,event:r},201);});
+app.get('/api/collaboration/notifications',requireAuth,requirePasswordUpdated,async c=>{const db=c.env.DB,u=c.get('user');const r=await db.prepare('SELECT * FROM notifications WHERE user_id=? ORDER BY created_at DESC LIMIT 100').bind(u.id).all();return c.json({ok:true,notifications:r.results||[]});});
+app.patch('/api/collaboration/notifications/:id/read',requireAuth,requirePasswordUpdated,async c=>{const db=c.env.DB,u=c.get('user');await db.prepare('UPDATE notifications SET read_at=NOW() WHERE id=? AND user_id=?').bind(c.req.param('id'),u.id).run();return c.json({ok:true});});
+
 app.all('/api/*', (c) => c.json({ ok: false, error: 'Route API introuvable.' }, 404));
 app.notFound((c) => c.json({ ok: false, error: 'Ressource introuvable.' }, 404));
 app.onError((error, c) => {

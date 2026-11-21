@@ -1,0 +1,59 @@
+MATRICE PARTENAIRE ET PTF SÉNÉGAL — VERSION PROFESSIONNELLE V2
+Déploiement GitHub + VS Code + Vercel + Neon PostgreSQL
+
+1) OUVRIR LE PROJET
+- Décompresser le ZIP.
+- Ouvrir le dossier matrice-ptf-senegal-main dans VS Code.
+- Ouvrir le terminal intégré.
+- Exécuter : npm install
+
+2) CONFIGURER NEON
+- Ouvrir le projet Neon existant.
+- Copier la chaîne de connexion PostgreSQL (connection string).
+- Ne jamais publier cette chaîne dans GitHub ni dans un fichier frontend.
+- Dans le SQL Editor Neon, exécuter dans cet ordre :
+  a. migrations/neon-schema.sql (uniquement si le schéma initial n'existe pas déjà)
+  b. migrations/neon-contact-messages.sql (si la vitrine/contact est utilisée)
+  c. migrations/neon-email-username.sql (si les comptes email sont utilisés)
+  d. migrations/neon-collaboration-v2.sql
+- Si le schéma de base est déjà en place, ne pas réexécuter le script d'initialisation qui crée/réinitialise le compte admin sans avoir vérifié son effet.
+
+3) TESTER LOCALEMENT
+- Copier .env.example vers .env.local et renseigner DATABASE_URL avec la chaîne Neon.
+- Garder .env.local hors de Git (le .gitignore l'exclut).
+- Exécuter : npm run check
+- Exécuter : npm run db:check
+- Exécuter : npm run dev
+- Tester connexion, tableau de bord, matrice, partenaires, activités, indicateurs, paramètres, vitrine, tâches, messagerie, agenda et notifications.
+
+4) ENVOYER SUR GITHUB
+Dans le terminal VS Code :
+  git status
+  git add .
+  git commit -m "Version professionnelle V2 - collaboration"
+  git push origin main
+Ne jamais ajouter .env.local, mot de passe ou DATABASE_URL au dépôt.
+
+5) CONFIGURER VERCEL
+- Ouvrir le projet Vercel connecté au dépôt GitHub.
+- Settings > Environment Variables.
+- Ajouter DATABASE_URL avec la chaîne de connexion Neon.
+- Cocher Production, Preview et Development selon le besoin.
+- Enregistrer puis lancer Deployments > Redeploy (ou pousser un nouveau commit).
+- Vérifier /api/health puis se connecter au site.
+
+6) MODULES V2 AJOUTÉS
+- Gestion des tâches : création, attribution, priorité, échéance, suivi, soumission et validation admin.
+- Messagerie interne : envoi, réception et marquage lu/non lu.
+- Agenda : événements et réunions publiés par l'administrateur.
+- Notifications : alertes de tâches et messages, compteur non lu.
+- Tableau de bord : compteurs de tâches, messages, notifications et travaux à valider.
+
+7) IMPORTANT — SÉCURITÉ ET VALIDATION
+- Les routes de collaboration exigent une session authentifiée.
+- Les tâches sont limitées à l'utilisateur concerné; la validation est réservée à l'admin.
+- L'agenda est créé par l'admin; les événements publics sont visibles aux utilisateurs connectés.
+- Le formulaire de messagerie utilise l'identifiant du compte destinataire. L'administrateur peut retrouver les identifiants via Paramètres > Gestion des utilisateurs.
+- La migration V2 doit être exécutée dans Neon avant d'utiliser ces modules.
+- Ce ZIP n'est pas déployé automatiquement sur vos comptes GitHub/Vercel. Le test final contre votre instance Neon doit être effectué après configuration de DATABASE_URL.
+- Avant mise en production, remplacez le mot de passe temporaire administrateur par un mot de passe robuste et unique. Ne communiquez jamais les secrets dans un dépôt Git.
