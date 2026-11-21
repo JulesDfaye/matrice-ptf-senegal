@@ -1,12 +1,8 @@
 {
   "name": "matrice-ptf-senegal",
-  "main": "src/index.ts",
+  "main": "<le chemin exact récupéré ci-dessus>",
   "compatibility_date": "2026-11-21",
-
-  "assets": {
-    "directory": "./public"
-  },
-
+  "assets": { "directory": "./public" },
   "d1_databases": [
     {
       "binding": "DB",
@@ -14,8 +10,5 @@
       "database_id": "92d7efc2-127e-4d81-93a8-6fdba485d37d"
     }
   ],
-
-  "observability": {
-    "enabled": true
-  }
+  "observability": { "enabled": true }
 }
