@@ -132,3 +132,5 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}.app{display:fle
 .logout-btn:hover{background:#ffffff25}
 
 .auth-card form[hidden]{display:none!important}
+
+[hidden]{display:none!important}

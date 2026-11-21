@@ -31,6 +31,7 @@
       <div id="forcePasswordError" class="auth-error" role="alert"></div>
       <button class="auth-submit" type="submit">Modifier le mot de passe et continuer</button>
     </form>
+    <p style="text-align:center;margin:16px 0 0"><a href="/vitrine.html">Découvrir la vitrine publique de la plateforme →</a></p>
     <div class="auth-note"><strong>Première connexion :</strong> nom d’utilisateur <strong>admin</strong> · mot de passe temporaire <strong>admin123</strong>.<br>Le changement du mot de passe est obligatoire à la première connexion.</div>
   </div>
 </section>
@@ -44,6 +45,7 @@
   <button onclick="showView('recherche',this)">⌕ &nbsp; Recherche globale</button>
   <button onclick="showView('sauvegarde',this)">↕ &nbsp; Sauvegarde / restauration</button>
   <button onclick="showView('parametres',this)">⚙ &nbsp; Paramètres</button>
+  <button id="adminUsersNav" onclick="showView('utilisateurs',this)" hidden>♙ &nbsp; Gestion des utilisateurs</button>
  </nav>
  <div class="sidebarBottom"><div class="copyright">SDF Technologie</div>Solution Digital du Futur @2026</div>
 </aside>
@@ -267,6 +269,23 @@
   <div id="alertStatusesSettingsList"></div>
  </div>
 </section>
+<section id="utilisateurs" class="view">
+ <div class="panel"><h3>Gestion des comptes et des autorisations</h3><p>Créez les comptes Utilisateur et attribuez uniquement les droits opérationnels nécessaires. Le profil Admin dispose de tous les pouvoirs.</p>
+  <form id="createUserForm" class="grid" onsubmit="createPlatformUser(event)">
+   <div class="field"><label>Nom d’utilisateur *</label><input name="username" required minlength="3" maxlength="80"></div>
+   <div class="field"><label>Prénom</label><input name="firstName"></div><div class="field"><label>Nom</label><input name="lastName"></div>
+   <div class="field"><label>Email</label><input name="email" type="email"></div><div class="field"><label>Mot de passe temporaire (10 caractères min.) *</label><input name="password" type="password" minlength="10" required></div>
+   <div class="field" style="grid-column:1/-1"><label>Droits de l’utilisateur</label><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr))">
+    <label><input type="checkbox" name="dashboard_read" checked> Tableau de bord</label><label><input type="checkbox" name="matrix_read"> Consulter la matrice</label><label><input type="checkbox" name="matrix_write"> Modifier la matrice</label><label><input type="checkbox" name="partners_read"> Consulter les partenaires</label><label><input type="checkbox" name="partners_write"> Modifier les partenaires</label><label><input type="checkbox" name="activities_read"> Consulter les activités</label><label><input type="checkbox" name="activities_write"> Modifier les activités</label><label><input type="checkbox" name="indicators_read"> Consulter les indicateurs</label><label><input type="checkbox" name="indicators_write"> Modifier les indicateurs</label><label><input type="checkbox" name="exports"> Exporter les données</label>
+   </div></div><button class="btn primary" type="submit">Créer le compte utilisateur</button>
+  </form>
+ </div><div class="panel"><h3>Comptes enregistrés</h3><div id="platformUsersList" class="empty">Chargement des comptes…</div></div>
+ <div class="panel"><h3>Publier sur la vitrine publique</h3><p>Ne publiez que des informations vérifiées et non confidentielles. Les coordonnées privées et les évaluations internes ne doivent pas être saisies ici.</p>
+  <form id="publicationForm" class="grid" onsubmit="publishShowcaseItem(event)"><div class="field"><label>Type de contenu</label><select name="content_type"><option value="presentation">Présentation</option><option value="partner">Partenaire</option><option value="activity">Activité</option><option value="action_plan">Plan d’action</option><option value="achievement">Réalisation</option><option value="statistic">Chiffre clé</option></select></div><div class="field"><label>Titre *</label><input name="title" required maxlength="180"></div><div class="field"><label>Année (facultatif)</label><input name="year" type="number" min="2000" max="2100"></div><div class="field" style="grid-column:1/-1"><label>Résumé public *</label><textarea name="summary" required maxlength="1500"></textarea></div><div class="field"><label>Valeur ou chiffre clé (facultatif)</label><input name="value" type="number"></div><div class="field"><label>Unité (facultatif)</label><input name="unit" placeholder="FCFA, bénéficiaires, %…"></div><button class="btn primary" type="submit">Publier sur la vitrine</button></form>
+  <div id="publicationsList" style="margin-top:18px"></div>
+ </div>
+</section>
+
 <section id="sauvegarde" class="view">
  <div class="panel"><h3>Sauvegarde et restauration</h3><div class="notice">La sauvegarde JSON contient toutes les données de la plateforme, y compris les matrices des partenaires.</div>
  <div class="actions"><button class="btn primary" onclick="backupJSON()">⬇ Télécharger une sauvegarde JSON</button><label class="btn gold">⬆ Restaurer une sauvegarde<input type="file" accept=".json" onchange="restoreJSON(event)" hidden></label><button class="btn danger" onclick="resetAll()">Effacer toutes les données</button></div></div>

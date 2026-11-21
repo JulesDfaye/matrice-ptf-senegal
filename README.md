@@ -10,9 +10,11 @@ matrice-ptf-cloudflare/
 │   └── workflows/
 │       └── deploy.yml          # CI/CD GitHub Actions facultatif
 ├── migrations/
-│   └── 0001_initial_schema.sql # Schéma D1 + compte initial
+│   ├── 0001_initial_schema.sql # Schéma D1 + compte initial
+│   └── 0002_roles_publication.sql # Profils, permissions et vitrine
 ├── public/
-│   ├── index.html              # Accueil Sénégal + application
+│   ├── index.html              # Accueil Sénégal + application privée
+│   ├── vitrine.html            # Espace visiteur public
 │   └── assets/
 │       ├── css/styles.css      # Styles modulaires de l'interface
 │       └── js/app.js           # Interactions et synchronisation D1
@@ -25,7 +27,8 @@ matrice-ptf-cloudflare/
 ├── package.json
 ├── jsconfig.json
 ├── tests/
-│   └── api-smoke.http          # Requêtes de test API (VS Code REST Client)
+│   ├── api-smoke.http          # Requêtes de test API
+│   └── roles-smoke.http        # Tests des rôles et de la vitrine
 └── wrangler.toml               # Worker, actifs statiques et binding D1
 ```
 
@@ -68,7 +71,7 @@ database_id = "REPLACE_WITH_D1_DATABASE_ID"
 
 par l'identifiant retourné. Conservez exactement le nom de base `matrice-ptf-senegal` et le binding `DB`.
 
-Appliquez le schéma et le compte initial :
+Appliquez le schéma, le compte initial, puis les rôles et la vitrine :
 
 ```bash
 npm run db:migrate:remote
@@ -183,3 +186,33 @@ Les routes de collection REST sont génériques ; le front-end actuel synchronis
 - Le compte temporaire `admin/admin123` doit être sécurisé immédiatement après le premier accès.
 - L'application conserve une copie locale de confort dans `localStorage` et synchronise les modifications vers D1 lorsqu'une session Cloudflare est active. La sauvegarde JSON et l'export Excel restent disponibles.
 - Faites une sauvegarde JSON avant toute opération de migration ou de réinitialisation importante.
+
+## 10. Profils Admin, Utilisateur et Visiteur
+
+La migration `0002_roles_publication.sql` ajoute les rôles, permissions, publications publiques et journaux d'audit. Exécutez-la avec :
+
+```bash
+npm run db:migrate:local
+npm run db:migrate:remote
+```
+
+- **Admin** : compte principal `admin` et comptes explicitement promus ; gestion des utilisateurs, permissions, paramètres et publications.
+- **Utilisateur** : compte créé par l'Admin ; droits de lecture/écriture attribués par module. Le serveur vérifie les droits à chaque API métier.
+- **Visiteur** : aucun compte requis ; accès à `/vitrine.html` et uniquement aux éléments explicitement publiés par l'Admin.
+
+Les enregistrements métiers existants du compte principal restent dans D1 et sont partagés aux utilisateurs autorisés. Les données ne sont pas copiées dans un espace individuel par utilisateur. Les réglages de la plateforme restent réservés à l'Admin.
+
+### Gestion depuis l'interface
+Après connexion en Admin, ouvrez **Gestion des utilisateurs** pour créer un compte utilisateur, définir ses permissions, l'activer ou le désactiver. Dans la même page, utilisez **Publier sur la vitrine publique** pour diffuser un résumé, un partenaire, une activité, un plan d'action, une réalisation ou un chiffre clé. Une publication peut être masquée sans être supprimée.
+
+La vitrine publique est accessible à `/vitrine.html`. Le lien « Découvrir la vitrine publique » est également présent sur l'écran de connexion.
+
+### Points de sécurité
+- Le rôle visiteur n'est jamais authentifié et ne dispose d'aucune API de lecture interne.
+- Les permissions sont vérifiées côté Worker ; masquer un bouton dans l'interface n'est pas considéré comme une protection.
+- Les paramètres et les sauvegardes globales restent réservés à l'Admin.
+- Les champs publiés sont filtrés par liste blanche ; ne saisissez pas de données personnelles ou confidentielles dans une publication.
+- Le mot de passe initial `admin123` est temporaire et doit être remplacé à la première connexion.
+
+### Migration des anciennes données
+Le projet D1 de départ stocke les données du compte `admin-root-001`. La nouvelle version lit et écrit dans cet espace partagé afin de conserver les données déjà saisies par le compte principal. Si votre déploiement utilise un autre identifiant administrateur ou si des données ont été saisies depuis plusieurs comptes, faites une sauvegarde D1 avant migration et demandez une adaptation de `DATA_OWNER_ID` avant la mise en production.

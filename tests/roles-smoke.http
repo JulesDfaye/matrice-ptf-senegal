@@ -1,14 +1,33 @@
-### Profil courant (session requise)
-GET http://localhost:8787/api/access/me
+@base = http://localhost:8787
+@adminUser = admin
+@adminPassword = CHANGE_ME_AFTER_FIRST_LOGIN
 
-### Liste utilisateurs (admin uniquement)
-GET http://localhost:8787/api/access/users
+### Santé API
+GET {{base}}/api/health
 
-### Publication publique (admin uniquement)
-POST http://localhost:8787/api/access/publications
+### Connexion Admin (mot de passe initial à changer dès la première connexion)
+POST {{base}}/api/auth/login
 Content-Type: application/json
 
-{"content_type":"statistic","title":"Exemple de chiffre validé","summary":"Chiffre de démonstration à remplacer par une donnée validée.","payload":{"value":12,"unit":"projets","year":2026}}
+{"username":"{{adminUser}}","password":"{{adminPassword}}"}
 
-### Vitrine publique (sans session)
-GET http://localhost:8787/api/public/showcase
+### Vérifier le rôle et les permissions du compte connecté
+GET {{base}}/api/auth/me
+
+### Liste des comptes (Admin uniquement)
+GET {{base}}/api/admin/users
+
+### Créer un utilisateur (Admin uniquement)
+POST {{base}}/api/admin/users
+Content-Type: application/json
+
+{"username":"agent_ptf","password":"MotDePasseTemporaire!2026","firstName":"Agent","lastName":"PTF","permissions":{"dashboard_read":true,"matrix_read":true,"matrix_write":true,"partners_read":true,"partners_write":false,"activities_read":true,"activities_write":false,"indicators_read":true,"indicators_write":false,"exports":false}}
+
+### Vérifier la vitrine publique sans session
+GET {{base}}/api/public/showcase
+
+### Déconnexion
+POST {{base}}/api/auth/logout
+Content-Type: application/json
+
+{}
