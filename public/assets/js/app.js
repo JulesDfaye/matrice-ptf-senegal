@@ -2,6 +2,7 @@ const KEY='matrice_ptf_senegal_v2';
 const rubriques=['RAC','RNV','PADO / STRATÉGIE DE SORTIE PMA','ODD','PLAN D’ACTION DE DAR EL SALAM','INCLUSION ET GROUPES VULNÉRABLES ?','PLATEFORME INFORMATISÉE','ÉTUDES','SUIVI INFRA ANNUEL','GUIDE HARMONISÉ'];
 const fields={multi:['partenaire','sigle','categorie','operateur','secteur','observation'],bi:['partenaire','sigle','categorie','operateur','secteur','observation'],hors:['numero','etablissement','sigle','nature','pays','instrument','observation']};
 let currentAccess={role:'utilisateur',permissions:{}};
+let selectedPlatformProfile = null;
 let data=JSON.parse(localStorage.getItem(KEY)||'null')||{partners:[],multi:[],bi:[],hors:[],activites:[],partenairesFiches:[],indicateurs:{},settings:{}};
 data.partners=(data.partners||[]).map(p=>({...p,type:p.type||'Public'}));
 data.multi=data.multi||[];data.bi=data.bi||[];data.hors=data.hors||[];data.activites=data.activites||[];data.partenairesFiches=data.partenairesFiches||[];data.indicateurs=data.indicateurs||{};
@@ -61,8 +62,17 @@ async function loadStateFromCloud(){
  else if(hasLocalData()){await apiRequest('/api/state',{method:'PUT',body:JSON.stringify(data)});lastCloudSyncData=JSON.stringify(data);}
  setCloudStatus('Connecté à Cloudflare D1','ok');
 }
+function backToWelcome(){const chooser=document.getElementById('profileChooser'),app=document.getElementById('appRoot');if(chooser)chooser.hidden=true;if(app)app.hidden=false;showView('accueil');}
+function backToProfiles(){selectedPlatformProfile=null;const auth=document.getElementById('authScreen'),chooser=document.getElementById('profileChooser');if(auth)auth.hidden=true;if(chooser)chooser.hidden=false;const form=document.getElementById('loginForm');if(form)form.reset();}
+function selectPlatformProfile(profile){
+ if(profile==='visiteur'){window.location.href='/vitrine.html';return;}
+ if(!['admin','utilisateur'].includes(profile))return;
+ selectedPlatformProfile=profile;showAuthScreen();
+}
 function showAuthScreen(message=''){
- const auth=document.getElementById('authScreen'),app=document.getElementById('appRoot');
+ const auth=document.getElementById('authScreen'),app=document.getElementById('appRoot'),chooser=document.getElementById('profileChooser');
+ if(chooser)chooser.hidden=true;if(app)app.hidden=true;
+ const title=document.getElementById('authTitle');if(title)title.textContent=selectedPlatformProfile==='admin'?'Connexion — Espace administrateur':'Connexion — Espace utilisateur';
  if(auth){auth.hidden=false;const err=document.getElementById('loginError');if(err){err.textContent=message;err.style.display=message?'block':'none';}const login=document.getElementById('loginForm'),force=document.getElementById('forcePasswordForm');if(login)login.hidden=false;if(force)force.hidden=true;const forceErr=document.getElementById('forcePasswordError');if(forceErr){forceErr.textContent='';forceErr.style.display='none';}}
  if(app)app.hidden=true;
 }
@@ -94,7 +104,7 @@ async function bootstrapCloudAccount(){
  try{
   const response=await fetch('/api/auth/me',{credentials:'same-origin',headers:{Accept:'application/json'}});
   if(response.status===404){showApplication();setCloudStatus('Mode local — API non configurée');return;}
-  if(response.status===401){showAuthScreen();return;}
+  if(response.status===401){showApplication();return;}
   if(!response.ok){showAuthScreen('Le service sécurisé est temporairement indisponible. Réessayez.');return;}
   const session=await response.json();apiAuthenticated=true;applyRoleUI(session.user);
   if(session.user?.mustChangePassword){showForcedPasswordScreen();return;}
@@ -109,7 +119,7 @@ async function bootstrapCloudAccount(){
 }
 async function handleLogin(event){
  event.preventDefault();const form=event.currentTarget,btn=form.querySelector('button[type="submit"]');btn.disabled=true;btn.textContent='Connexion…';
- try{await apiRequest('/api/auth/login',{method:'POST',body:JSON.stringify({username:form.username.value.trim(),password:form.password.value})});apiAuthenticated=true;const me=await apiRequest('/api/auth/me');applyRoleUI(me.user);if(me.user?.mustChangePassword){document.getElementById('forceCurrentPassword').value=form.password.value;form.reset();showForcedPasswordScreen();return;}await loadStateFromCloud();applyRoleUI(me.user);if(me.user?.profile)Object.assign(data.settings,{prenom:me.user.profile.firstName||'',nom:me.user.profile.lastName||'',ministere:me.user.profile.ministry||'',service:me.user.profile.department||'',poste:me.user.profile.position||'',phone:me.user.profile.phone||'',email:me.user.profile.email||'',username:me.user.username||'admin'});localStorage.setItem(KEY,JSON.stringify(data));applyPlatformSettings();showApplication();form.reset();document.getElementById('loginUsername').value=data.settings.username||'admin';}
+ try{await apiRequest('/api/auth/login',{method:'POST',body:JSON.stringify({username:form.username.value.trim(),password:form.password.value})});apiAuthenticated=true;const me=await apiRequest('/api/auth/me');if(selectedPlatformProfile && me.user?.role!==selectedPlatformProfile){await apiRequest('/api/auth/logout',{method:'POST'}).catch(()=>{});apiAuthenticated=false;throw new Error(selectedPlatformProfile==='admin'?'Ce compte ne possède pas le profil Administrateur. Choisissez le profil Utilisateur si nécessaire.':'Ce compte ne possède pas le profil Utilisateur. Choisissez le profil Administrateur si nécessaire.');}applyRoleUI(me.user);if(me.user?.mustChangePassword){document.getElementById('forceCurrentPassword').value=form.password.value;form.reset();showForcedPasswordScreen();return;}await loadStateFromCloud();applyRoleUI(me.user);if(me.user?.profile)Object.assign(data.settings,{prenom:me.user.profile.firstName||'',nom:me.user.profile.lastName||'',ministere:me.user.profile.ministry||'',service:me.user.profile.department||'',poste:me.user.profile.position||'',phone:me.user.profile.phone||'',email:me.user.profile.email||'',username:me.user.username||'admin'});localStorage.setItem(KEY,JSON.stringify(data));applyPlatformSettings();showApplication();showView('dashboard');selectedPlatformProfile=null;form.reset();document.getElementById('loginUsername').value=data.settings.username||'admin';}
  catch(error){const box=document.getElementById('loginError');box.textContent=error.message||'Identifiants incorrects.';box.style.display='block';}
  finally{btn.disabled=false;btn.textContent='Se connecter';}
 }
@@ -156,7 +166,7 @@ function save(){delete data.settings.password;delete data.settings.currentPasswo
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
 function escAttr(v){return esc(v).replace(/`/g,'&#96;');}
 function showView(id,btn){const target=document.getElementById(id);if(!target)return;document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));target.classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));const navBtn=btn||document.querySelector(`.nav button[data-menu-id="${id}"]`);if(navBtn)navBtn.classList.add('active');document.querySelector('.main')?.classList.toggle('home-active',id==='accueil');document.getElementById('appRoot')?.classList.toggle('home-landing',id==='accueil');const t={accueil:'Accueil',dashboard:'Tableau de bord',matrice:'Matrice des partenaires',activites:'Activités',partenaires:'Partenaires',indicateurs:'Indicateurs',recherche:'Recherche globale',sauvegarde:'Sauvegarde / restauration',parametres:'Paramètres'};document.getElementById('title').textContent=t[id]||id;if(id==='dashboard')drawCharts();if(id==='activites')renderActivites();if(id==='partenaires')renderPartenairesFiches();if(id==='indicateurs')renderIndicateurs();if(id==='parametres')renderSettings();if(id==='utilisateurs'){loadPlatformUsers();loadPublications();}if(id==='matrice'){renderPartners();renderMatrix()}}
-function goToDashboard(){showView('dashboard',document.querySelector('.nav button[data-menu-id="dashboard"]'))}
+function goToDashboard(){const app=document.getElementById('appRoot'),chooser=document.getElementById('profileChooser'),auth=document.getElementById('authScreen');if(app)app.hidden=true;if(auth)auth.hidden=true;if(chooser)chooser.hidden=false;}
 function toggleCustomType(){let s=document.getElementById('partnerType');document.getElementById('customTypeWrap').style.display=s.value==='__custom__'?'flex':'none'}
 function addPartner(){let n=document.getElementById('partnerName').value.trim();if(!n)return alert('Saisissez le nom du partenaire.');let s=document.getElementById('partnerType'),type=s.value==='__custom__'?document.getElementById('customType').value.trim():s.value;if(!type)return alert('Veuillez saisir le nouveau type.');if(data.partners.some(p=>p.name.toLowerCase()===n.toLowerCase()))return alert('Ce partenaire existe déjà.');let values={};rubriques.forEach(r=>values[r]={interet:'',influence:'',contribution:''});data.partners.push({id:Date.now(),name:n,type,values});save();document.getElementById('partnerName').value='';document.getElementById('customType').value='';s.value='Public';toggleCustomType();renderPartners();document.getElementById('partnerSelect').value=data.partners.at(-1).id;renderMatrix();}
 function renderPartners(){let s=document.getElementById('partnerSelect'),old=s.value;s.innerHTML='<option value="">-- Sélectionner un partenaire --</option>'+data.partners.map(p=>`<option value="${p.id}">${esc(p.name)} — ${esc(p.type||'Public')}</option>`).join('');if(data.partners.some(p=>String(p.id)===old))s.value=old;}

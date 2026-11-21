@@ -9,13 +9,25 @@
 <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
 <body>
+<section id="profileChooser" class="profile-screen" hidden aria-label="Choix du profil">
+ <div class="profile-shell">
+  <div class="profile-heading"><div class="profile-emblem">🇸🇳</div><p class="profile-eyebrow">MATRICE PARTENAIRE ET PTF SÉNÉGAL</p><h1>Choisissez votre espace</h1><p>Sélectionnez le profil correspondant à votre utilisation de la plateforme.</p></div>
+  <div class="profile-grid">
+   <button class="profile-card profile-admin" type="button" onclick="selectPlatformProfile('admin')"><span class="profile-icon">♛</span><span class="profile-name">Administrateur</span><span class="profile-description">Administration complète, gestion des utilisateurs, paramètres, données et publications.</span><span class="profile-action">Accéder à l’espace administrateur →</span></button>
+   <button class="profile-card profile-user" type="button" onclick="selectPlatformProfile('utilisateur')"><span class="profile-icon">▣</span><span class="profile-name">Utilisateur</span><span class="profile-description">Accès aux modules et tâches autorisés par l’administrateur.</span><span class="profile-action">Accéder à l’espace utilisateur →</span></button>
+   <button class="profile-card profile-visitor" type="button" onclick="selectPlatformProfile('visiteur')"><span class="profile-icon">◉</span><span class="profile-name">Visiteur</span><span class="profile-description">Découvrir la vitrine, les partenaires, les activités, les plans d’action et les réalisations publiées.</span><span class="profile-action">Consulter la vitrine publique →</span></button>
+  </div>
+  <button class="profile-back" type="button" onclick="backToWelcome()">← Retour à la page d’accueil</button>
+ </div>
+</section>
+
 <section id="authScreen" class="auth-screen" hidden aria-label="Connexion sécurisée">
   <div class="auth-card">
     <div class="auth-brand">
       <div class="auth-logo" aria-hidden="true"><svg viewBox="0 0 90 60"><rect width="30" height="60" fill="#00853f"/><rect x="30" width="30" height="60" fill="#fdef42"/><rect x="60" width="30" height="60" fill="#e31b23"/><polygon points="45,16 48.5,27 60,27 50.7,33.8 54.2,45 45,38 35.8,45 39.3,33.8 30,27 41.5,27" fill="#00853f"/></svg></div>
       <div><h1>MATRICE PARTENAIRE<br>ET PTF SÉNÉGAL</h1><p>Gestion • Suivi • Analyse • Données</p></div>
     </div>
-    <h2>Connexion à la plateforme</h2>
+    <h2 id="authTitle">Connexion à la plateforme</h2>
     <p class="intro">Identifiez-vous pour accéder à vos partenaires, activités, matrices et indicateurs. Vos données sont enregistrées dans Cloudflare D1.</p>
     <form id="loginForm" class="auth-form">
       <label>Nom d’utilisateur<input id="loginUsername" name="username" autocomplete="username" required value="admin" maxlength="80"></label>
@@ -31,8 +43,8 @@
       <div id="forcePasswordError" class="auth-error" role="alert"></div>
       <button class="auth-submit" type="submit">Modifier le mot de passe et continuer</button>
     </form>
-    <p style="text-align:center;margin:16px 0 0"><a href="/vitrine.html">Découvrir la vitrine publique de la plateforme →</a></p>
-    <div class="auth-note"><strong>Première connexion :</strong> nom d’utilisateur <strong>admin</strong> · mot de passe temporaire <strong>admin123</strong>.<br>Le changement du mot de passe est obligatoire à la première connexion.</div>
+    <p style="text-align:center;margin:16px 0 0"><button class="auth-back" type="button" onclick="backToProfiles()">← Changer de profil</button></p>
+    <div class="auth-note">L’accès est réservé aux comptes créés ou autorisés par l’administrateur. Le changement du mot de passe temporaire peut être exigé à la première connexion.</div>
   </div>
 </section>
 

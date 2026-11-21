@@ -2,6 +2,16 @@
 
 Version structurée pour VS Code, GitHub et Cloudflare Workers + D1. Le front-end conserve l'interface de la plateforme (Accueil Sénégal, Tableau de bord, Matrice, Partenaires, Activités, Indicateurs, Recherche, Sauvegarde et Paramètres). Le serveur Hono sécurise l'accès par session et enregistre les données utilisateur dans D1.
 
+
+## Choix du profil après l’accueil
+
+Après la page d’accueil Sénégal, le bouton « Accéder à la plateforme » ouvre un écran de sélection proposant trois cartes :
+- **Administrateur** : ouvre le formulaire de connexion réservé à un compte dont le rôle serveur est `admin`.
+- **Utilisateur** : ouvre le formulaire de connexion réservé à un compte dont le rôle serveur est `utilisateur`; ses permissions restent celles attribuées par l’administrateur.
+- **Visiteur** : redirige vers `/vitrine.html`, sans connexion, et affiche uniquement les publications validées.
+
+Le choix affiché dans le navigateur ne donne aucun privilège. Après authentification, le rôle réel est relu depuis l’API; si le rôle ne correspond pas au profil choisi, la session est immédiatement fermée et l’accès est refusé. Les droits restent contrôlés côté serveur.
+
 ## 1. Arborescence
 
 ```text
