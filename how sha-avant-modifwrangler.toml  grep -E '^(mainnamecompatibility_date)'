@@ -1,0 +1,11 @@
+[33m64c8477[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Rename wrangler.toml to wrangler.jsonc
+[33m458eae9[m Refactor wrangler.toml to JSON format
+[33m8613294[m Fix database_name format in wrangler.toml
+[33md2c8870[m Rename wrangler.toml to wrangler.jsonc
+[33mdad09e5[m Add files via upload
+[33m2ee2b2e[m Update database name and ID in wrangler.toml
+[33ma182471[m Update database name in wrangler.toml
+[33m81a236a[m Rename database from 'matriceptfsenegal' to 'matrice-ptf-senegal'
+[33me067559[m Update wrangler.toml
+[33md0c2ce7[m Refactor D1 database configuration in wrangler.toml
+[33m1f5503e[m Add files via upload
