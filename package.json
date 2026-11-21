@@ -1,24 +1,20 @@
 {
-  "name": "matrice-ptf-senegal-cloudflare",
+  "name": "matrice-ptf-senegal-vercel-neon",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Plateforme MATRICE PARTENAIRE ET PTF SÉNÉGAL — Hono, Cloudflare Workers et D1",
+  "description": "Plateforme MATRICE PARTENAIRE ET PTF SÉNÉGAL — Vercel, Hono et Neon PostgreSQL",
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
-    "check": "node --check api/index.js && node --check public/assets/js/app.js",
-    "types": "wrangler types",
-    "db:create": "wrangler d1 create matrice-ptf-senegal",
-    "db:migrate:local": "wrangler d1 migrations apply matrice-ptf-senegal --local",
-    "db:migrate:remote": "wrangler d1 migrations apply matrice-ptf-senegal --remote",
-    "db:console:local": "wrangler d1 execute matrice-ptf-senegal --local --command \"SELECT name FROM sqlite_master WHERE type='table'\"",
-    "db:console:remote": "wrangler d1 execute matrice-ptf-senegal --remote --command \"SELECT name FROM sqlite_master WHERE type='table'\""
+    "dev": "vercel dev",
+    "check": "node --check api/index.js && node --check \"api/[...route].js\" && node --check lib/db.js && node --check public/assets/js/app.js",
+    "deploy": "vercel --prod",
+    "db:check": "node scripts/check-db.js"
   },
   "dependencies": {
-    "hono": "^4.13.14"
+    "hono": "^4.13.14",
+    "postgres": "^3.4.7"
   },
   "devDependencies": {
-    "wrangler": "^4.156.0"
+    "vercel": "^39.2.0"
   }
 }

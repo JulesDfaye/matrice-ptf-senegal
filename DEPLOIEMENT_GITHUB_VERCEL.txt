@@ -1,0 +1,31 @@
+COMMANDES DE PUBLICATION GITHUB
+
+Dans le terminal VS Code, à la racine du projet :
+
+1) Installer les dépendances :
+   npm install
+
+2) Vérifier la syntaxe :
+   npm run check
+
+3) Initialiser Git si nécessaire :
+   git init
+   git branch -M main
+   git remote add origin https://github.com/JulesDfaye/matrice-ptf-senegal.git
+
+Si le dépôt distant est déjà configuré, ne refaites pas git remote add.
+
+4) Publier les fichiers :
+   git add .
+   git commit -m "Migration Vercel et Neon PostgreSQL"
+   git push -u origin main
+
+Si Git indique que le dépôt distant contient des commits absents localement :
+   git pull --rebase origin main
+   puis relancer git push origin main.
+
+Dans Vercel, vérifier que le projet est connecté au dépôt, ajouter DATABASE_URL dans
+Settings > Environment Variables (Production, Preview et Development), puis relancer
+un déploiement. Ne jamais ajouter .env.local à Git.
+
+Avant le premier accès, exécuter migrations/neon-schema.sql dans Neon SQL Editor.

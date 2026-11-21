@@ -1,8 +1,8 @@
-POUR COMMENCER
-
-1) Décompresser le ZIP.
-2) Ouvrir le dossier matrice-ptf-cloudflare dans Visual Studio Code.
-3) Lancer npm install.
-4) Lire le fichier README.md pour créer D1, remplacer database_id et déployer.
-
-Compte initial : admin / admin123 (à modifier dès la première connexion).
+POUR COMMENCER — VERSION VERCEL + NEON
+1) Ouvrir le dossier dans VS Code.
+2) Exécuter npm install.
+3) Dans Neon SQL Editor, exécuter migrations/neon-schema.sql.
+4) Configurer DATABASE_URL dans Vercel (Settings > Environment Variables).
+5) Déployer depuis le dépôt GitHub ou exécuter vercel --prod.
+6) Connexion initiale : admin / admin123, puis choisir immédiatement un mot de passe sécurisé.
+Lire README.md avant le déploiement. Ne jamais publier DATABASE_URL.

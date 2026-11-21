@@ -86,7 +86,7 @@ function safeUser(row) {
   };
 }
 async function getRequestIpHash(request) {
-  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  const ip = (request.headers.get('x-forwarded-for') || '').split(',')[0].trim() || request.headers.get('CF-Connecting-IP') || 'unknown';
   return sha256Hex(ip);
 }
 async function writeAudit(db, userId, action, ipHash, details = {}) {
@@ -313,7 +313,7 @@ app.put('/api/state', requireAuth, requirePasswordUpdated, async (c) => {
   return c.json({ ok: true, records: records.length, updatedAt: new Date().toISOString() });
 });
 
-// Endpoints REST génériques pour les collections. Ils utilisent les mêmes enregistrements D1 que /api/state.
+// Endpoints REST génériques pour les collections. Ils utilisent les mêmes enregistrements PostgreSQL que /api/state.
 app.get('/api/collections/:collection', requireAuth, requirePasswordUpdated, async (c) => {
   const collection = resolveCollection(c.req.param('collection'));
   if (!COLLECTIONS.has(collection)) return jsonError(c, 'Collection inconnue.', 404);
@@ -435,9 +435,9 @@ app.patch('/api/admin/publications/:id', requireAuth, requirePasswordUpdated, as
 });
 
 app.all('/api/*', (c) => c.json({ ok: false, error: 'Route API introuvable.' }, 404));
-app.notFound((c) => c.env.ASSETS.fetch(c.req.raw));
+app.notFound((c) => c.json({ ok: false, error: 'Ressource introuvable.' }, 404));
 app.onError((error, c) => {
-  console.error('Erreur Worker API', error);
+  console.error('Erreur API', error);
   return c.json({ ok: false, error: 'Une erreur interne est survenue.' }, 500);
 });
 

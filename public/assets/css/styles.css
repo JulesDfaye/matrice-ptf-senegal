@@ -106,7 +106,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}.app{display:fle
 
 
 
-/* Authentification Cloudflare : écran isolé de connexion */
+/* Authentification sécurisée : écran isolé de connexion */
 .auth-screen{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 12% 12%,#0b8b5d22,transparent 28rem),linear-gradient(135deg,#f3f8f5,#fdf9ed)}
 .auth-card{width:min(460px,100%);background:#fff;border:1px solid #dce4ea;border-radius:20px;padding:clamp(24px,5vw,38px);box-shadow:0 24px 70px #123b631c;animation:auth-enter .45s ease both}
 .auth-brand{display:flex;align-items:center;gap:14px;margin-bottom:24px}

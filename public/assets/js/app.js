@@ -29,7 +29,7 @@ async function apiRequest(path, options={}) {
  if(!response.ok){const err=new Error(payload.error||`Erreur API (${response.status})`);err.status=response.status;throw err;}
  return payload;
 }
-function hasLocalData(){return Boolean((data.partners||[]).length||(data.activites||[]).length||(data.partenairesFiches||[]).length||Object.keys(data.indicateurs||{}).length);}
+function hasLocalData(){return Boolean((data.partners||[]).length||(data.multi||[]).length||(data.bi||[]).length||(data.hors||[]).length||(data.activites||[]).length||(data.partenairesFiches||[]).length||Object.keys(data.indicateurs||{}).length||Object.keys(data.settings||{}).length);}
 function applyRemoteState(remote){
  if(!remote||typeof remote!=='object')return;
  data={...data,...remote};
@@ -51,7 +51,7 @@ function applyRemoteState(remote){
 async function syncStateToCloud(){
  if(!apiAuthenticated||cloudSyncRunning)return;
  cloudSyncRunning=true;const snapshot=JSON.stringify(data);
- try{await apiRequest('/api/state',{method:'PUT',body:snapshot});lastCloudSyncData=snapshot;setCloudStatus('Synchronisé avec Cloudflare','ok');}
+ try{await apiRequest('/api/state',{method:'PUT',body:snapshot});lastCloudSyncData=snapshot;setCloudStatus('Synchronisé avec Neon','ok');}
  catch(error){setCloudStatus(error.status===401?'Session expirée':'Synchronisation impossible', 'error');if(error.status===401){apiAuthenticated=false;showAuthScreen('Votre session a expiré. Reconnectez-vous.');}}
  finally{cloudSyncRunning=false;}
 }
@@ -60,7 +60,7 @@ async function loadStateFromCloud(){
  const result=await apiRequest('/api/state');
  if(result.state){applyRemoteState(result.state);lastCloudSyncData=JSON.stringify(data);}
  else if(hasLocalData()){await apiRequest('/api/state',{method:'PUT',body:JSON.stringify(data)});lastCloudSyncData=JSON.stringify(data);}
- setCloudStatus('Connecté à Cloudflare D1','ok');
+ setCloudStatus('Connecté à Neon PostgreSQL','ok');
 }
 function backToWelcome(){const chooser=document.getElementById('profileChooser'),app=document.getElementById('appRoot');if(chooser)chooser.hidden=true;if(app)app.hidden=false;showView('accueil');}
 function backToProfiles(){selectedPlatformProfile=null;const auth=document.getElementById('authScreen'),chooser=document.getElementById('profileChooser');if(auth)auth.hidden=true;if(chooser)chooser.hidden=false;const form=document.getElementById('loginForm');if(form)form.reset();}
@@ -114,7 +114,7 @@ async function bootstrapCloudAccount(){
  }catch(error){
   // Le fichier reste consultable en mode local (file:// ou serveur statique sans /api).
   if(location.protocol==='file:'){showApplication();setCloudStatus('Mode local — données dans ce navigateur');}
-  else showAuthScreen('Impossible de joindre le serveur. Vérifiez le déploiement Cloudflare puis réessayez.');
+  else showAuthScreen('Impossible de joindre le serveur. Vérifiez le déploiement Vercel puis réessayez.');
  }
 }
 async function handleLogin(event){
@@ -146,7 +146,7 @@ async function saveUserProfile(form){
  const values=Object.fromEntries(new FormData(form).entries());
  const currentPassword=String(values.currentPassword||'');const newPassword=String(values.newPassword||'');
  delete values.currentPassword;delete values.newPassword;
- if(newPassword && !apiAuthenticated)throw new Error('Le changement du mot de passe nécessite une session Cloudflare active.');
+ if(newPassword && !apiAuthenticated)throw new Error('Le changement du mot de passe nécessite une session active.');
  if(newPassword && !currentPassword)throw new Error('Saisissez le mot de passe actuel pour confirmer le changement.');
  if(newPassword && newPassword.length<10)throw new Error('Le nouveau mot de passe doit contenir au moins 10 caractères.');
  Object.assign(data.settings,values);delete data.settings.password;
@@ -154,7 +154,7 @@ async function saveUserProfile(form){
  if(apiAuthenticated){
   await apiRequest('/api/profile',{method:'PUT',body:JSON.stringify({username:values.username,firstName:values.prenom,lastName:values.nom,ministry:values.ministere,department:values.service,position:values.poste,phone:values.phone,email:values.email})});
   if(newPassword){clearTimeout(cloudSyncTimer);await syncStateToCloud();await apiRequest('/api/auth/change-password',{method:'POST',body:JSON.stringify({currentPassword,newPassword})});apiAuthenticated=false;form.elements.currentPassword.value='';form.elements.newPassword.value='';showAuthScreen('Mot de passe modifié. Reconnectez-vous avec votre nouveau mot de passe.');return;}
-  alert('Les informations utilisateur ont été enregistrées dans Cloudflare D1.');
+  alert('Les informations utilisateur ont été enregistrées dans la base de données sécurisée.');
  }else{
   alert('Les informations utilisateur ont été enregistrées localement dans ce navigateur.');
  }
