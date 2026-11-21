@@ -10,7 +10,7 @@ run_worker_first = ["/api/*"]
 
 [[d1_databases]]
 binding = "DB"
-database_name = "matrice-pft-senegal-db"
+database_name = matrice-pft-senegal-db
 database_id = "92d7efc2-127e-4d81-93a8-6fdba485d37d"
 
 
